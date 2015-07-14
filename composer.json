@@ -1,0 +1,21 @@
+{
+    "name": "flysap/form-builder",
+    "description": "SMG",
+    "require": {
+        "laravel/framework": "~5.1",
+        "symfony/form": "~2.7"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Radu",
+            "email": "radu.bordei89@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Flysap\\FormBuilder\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
