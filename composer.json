@@ -1,8 +1,15 @@
 {
     "name": "flysap/scaffold",
     "description": "SMG",
+    "repositories": [
+      {
+        "type": "git",
+        "url" : "git@github.com:flysap/form-builder.git"
+      }
+    ],
     "require": {
-        "laravel/framework": "~5.1"
+        "laravel/framework": "~5.1",
+        "flysap/form-builder": "dev-master"
     },
     "license": "MIT",
     "authors": [

@@ -2,6 +2,7 @@
 
 namespace Flysap\Scaffold;
 
+use Flysap\Scaffold\Contracts\ScaffoldServiceContract;
 use Illuminate\Support\ServiceProvider;
 
 class ScaffoldServiceProvider extends Serviceprovider {
@@ -12,6 +13,8 @@ class ScaffoldServiceProvider extends Serviceprovider {
      * @return void
      */
     public function register() {
-        // TODO: Implement register() method.
+        $this->app->singleton(ScaffoldServiceContract::class, function() {
+            return new ScaffoldService();
+        });
     }
 }
