@@ -5,8 +5,17 @@ namespace Flysap\Scaffold;
 use Flysap\Scaffold\Contracts\ScaffoldServiceContract;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Yaml\Yaml;
 
 class ScaffoldServiceProvider extends Serviceprovider {
+
+
+    /**
+     * On boot's application load package requirements .
+     */
+    public function boot() {
+        $this->loadConfiguration();
+    }
 
     /**
      * Register the service provider.
@@ -23,5 +32,22 @@ class ScaffoldServiceProvider extends Serviceprovider {
                DB::connection()
            );
         });
+    }
+
+    /**
+     * Load configuration .
+     *
+     * @return $this
+     */
+    protected function loadConfiguration() {
+        $array = Yaml::parse(file_get_contents(
+            __DIR__ . '/../configuration/general.yaml'
+        ));
+
+        $config = $this->app['config']->get('scaffold', []);
+
+        $this->app['config']->set('scaffold', array_merge($array, $config));
+
+        return $this;
     }
 }

@@ -1,0 +1,6 @@
+mask:
+    int:        number
+    varchar:    text
+    longtext:   textarea
+    timestamp:  date
+    date:       date

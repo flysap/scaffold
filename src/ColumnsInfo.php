@@ -3,6 +3,7 @@
 namespace Flysap\Scaffold;
 
 use Flysap\Scaffold\Exceptions\ScaffoldException;
+use Illuminate\Config\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PDO;
@@ -27,13 +28,12 @@ class ColumnsInfo {
     /**
      * @var
      */
-    protected $mask = [
-        'int'       => 'number',
-        'varchar'   => 'text',
-        'longtext'  => 'textarea',
-        'timestamp' => 'date',
-        'date'      => 'date',
-    ];
+    protected $mask = [];
+
+    /**
+     * @var Repository
+     */
+    protected $configRepository;
 
     /**
      * @param $connection
@@ -41,6 +41,13 @@ class ColumnsInfo {
     public function __construct($connection) {
 
         $this->connection = $connection;
+
+        $this->configRepository = (new Repository(config('scaffold')));
+
+        if( $this->configRepository->has('mask') )
+            $this->setMask(
+                $this->configRepository->get('mask')
+            );
     }
 
     /**
@@ -171,5 +178,29 @@ class ColumnsInfo {
         }
 
         return $this;
+    }
+
+    /**
+     * Get all fields ..
+     *
+     * @return mixed
+     */
+    public function getFields() {
+        $this->fields();
+
+        return $this->columns;
+    }
+
+    /**
+     * Get field .
+     *
+     * @param $field
+     * @return mixed
+     */
+    public function getField($field) {
+        if(! isset($this->columns[$field]))
+            return;
+
+        return $this->columns[$field];
     }
 }
