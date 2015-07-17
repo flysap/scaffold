@@ -5,16 +5,17 @@ namespace Flysap\Scaffold;
 trait ScaffoldTrait {
 
     /**
+     * @var
+     */
+    protected $tableFields;
+
+    /**
      * Return scaffold editable .
      *
      * @return array
      */
     public function scaffoldEditable() {
-        $scaffoldColumns = app('scaffold-columns');
-
-        $columns = $scaffoldColumns->fromEloquent($this)
-            ->fields()
-            ->unmask();
+        $columns = $this->tableFields();
 
         if( isset($this->fillable) )
             return array_only($columns, $this->fillable);
@@ -29,7 +30,28 @@ trait ScaffoldTrait {
     }
 
     public function scaffoldListing() {
-        // TODO: Implement scaffoldListing() method.
+
+        /**
+         * 1. check for list variable
+         * 2. if not var that chec
+         */
+    }
+
+    /**
+     * Get unmasked table fields .
+     *
+     * @return mixed
+     */
+    protected function tableFields() {
+        if(! $this->tableFields) {
+            $scaffoldColumns = app('scaffold-columns');
+
+            $this->tableFields = $scaffoldColumns->fromEloquent($this)
+                ->fields()
+                ->unmask();
+        }
+
+        return $this->tableFields;
     }
 
 }

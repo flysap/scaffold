@@ -144,7 +144,11 @@ class ColumnsInfo {
             }
 
             if( $matches )
-                return $this->getMask()[$matches[1]];
+                return [
+                    $field['name'] = $this->getMask()[$matches[1]]
+                ];
+
+            return false;
 
         }, $fields);
 
