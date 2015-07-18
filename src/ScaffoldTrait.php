@@ -25,16 +25,32 @@ trait ScaffoldTrait {
         ));
     }
 
+    /**
+     * Filter form fields .
+     *
+     * @return array|mixed
+     */
     public function scaffoldFilter() {
-        // TODO: Implement scaffoldFilter() method.
+        $columns = $this->tableFields();
+
+        if( isset($this->filter) )
+            return array_only($columns, $this->filter);
+
+        return $columns;
     }
 
+    /**
+     * Listing form fields .
+     *
+     * @return array|mixed
+     */
     public function scaffoldListing() {
+        $columns = $this->tableFields();
 
-        /**
-         * 1. check for list variable
-         * 2. if not var that chec
-         */
+        if( isset($this->list) )
+            return array_only($columns, $this->list);
+
+        return $columns;
     }
 
     /**
