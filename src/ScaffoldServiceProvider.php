@@ -28,7 +28,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
         });
 
         $this->app->singleton('scaffold-columns', function() {
-           return new ColumnsInfo(
+           return new Columns(
                DB::connection()
            );
         });

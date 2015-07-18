@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PDO;
 
-class ColumnsInfo {
+class Columns {
 
     /**
      * @var
