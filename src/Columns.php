@@ -23,7 +23,7 @@ class ColumnsInfo {
     /**
      * @var
      */
-    protected $columns;
+    protected $fields;
 
     /**
      * @var
@@ -121,6 +121,10 @@ class ColumnsInfo {
      * @param array $fields
      * @return array
      * @throws ScaffoldException
+     * [
+     *  [name] => 'id'
+     *  [type] => 'int'
+     * ]
      */
     public function unmask(array $fields = array()) {
         if(! $mask = $this->getMask())
@@ -129,13 +133,13 @@ class ColumnsInfo {
             );
 
         if(! $fields)
-            $fields = $this->columns;
+            $fields = $this->fields;
 
         if(! is_array($fields))
             $fields = (array)$fields;
 
-        $columns = array_map(function($field) {
-            $type = $field['Type'];
+        $fields = array_map(function($field) {
+            $type = $field['type'];
 
             $matches = [];
             foreach ($this->getMask() as $mask => $value) {
@@ -143,17 +147,25 @@ class ColumnsInfo {
                     break;
             }
 
-            if( $matches )
+            if( $matches ) {
+                if( isset($this->getMask()[$matches[1]]) )
+                    $mask = $this->getMask()[$matches[1]];
+                else
+                    $mask = 'text';
+
                 return [
-                    $field['name'] = $this->getMask()[$matches[1]]
+                    $field['name'] = $mask
                 ];
+            }
 
-            return false;
+            return;
 
-        }, $fields);
+        }, array_change_key_case(
+            $fields, CASE_LOWER
+        ));
 
         return array_filter(
-            $columns
+            $fields
         );
     }
 
@@ -163,7 +175,7 @@ class ColumnsInfo {
      * @return mixed
      */
     public function fields() {
-        if(! $this->columns) {
+        if(! $this->fields) {
             $driver = $this->connection->getConfig('driver');
 
             if( $driver == 'mysql' )
@@ -174,11 +186,13 @@ class ColumnsInfo {
             $query = str_replace('%s', $this->getTable(), $query);
 
             DB::setFetchMode(PDO::FETCH_ASSOC);
-            $columns = DB::select($query);
+            $fields = DB::select($query);
 
-            array_map(function($column) {
-               $this->columns[$column['Field']] = $column;
-            }, $columns);
+            array_map(function($field) {
+               $this->fields[$field['field']] = $field;
+            }, array_change_key_case(
+                $fields, CASE_LOWER
+            ));
         }
 
         return $this;
@@ -192,7 +206,7 @@ class ColumnsInfo {
     public function getFields() {
         $this->fields();
 
-        return $this->columns;
+        return $this->fields;
     }
 
     /**
@@ -202,9 +216,9 @@ class ColumnsInfo {
      * @return mixed
      */
     public function getField($field) {
-        if(! isset($this->columns[$field]))
+        if(! isset($this->fields[$field]))
             return;
 
-        return $this->columns[$field];
+        return $this->fields[$field];
     }
 }
