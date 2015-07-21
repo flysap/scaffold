@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PDO;
 
+require_once("helpers.php");
+
 class Columns {
 
     /**
@@ -138,7 +140,7 @@ class Columns {
         if(! is_array($fields))
             $fields = (array)$fields;
 
-        $fields = array_map(function($field) {
+        foreach (array_change_key_case($fields, CASE_LOWER) as $key => $field) {
             $type = $field['type'];
 
             $matches = [];
@@ -153,20 +155,11 @@ class Columns {
                 else
                     $mask = 'text';
 
-                return [
-                    $field['name'] = $mask
-                ];
+                $fields[$key] = $mask;
             }
+        }
 
-            return;
-
-        }, array_change_key_case(
-            $fields, CASE_LOWER
-        ));
-
-        return array_filter(
-            $fields
-        );
+        return array_filter($fields);
     }
 
     /**
@@ -187,6 +180,8 @@ class Columns {
 
             DB::setFetchMode(PDO::FETCH_ASSOC);
             $fields = DB::select($query);
+
+            $fields = array_change_key_case_recursive($fields);
 
             array_map(function($field) {
                $this->fields[$field['field']] = $field;
