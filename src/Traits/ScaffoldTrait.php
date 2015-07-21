@@ -1,6 +1,6 @@
 <?php
 
-namespace Flysap\Scaffold;
+namespace Flysap\Scaffold\Traits;
 
 trait ScaffoldTrait {
 
