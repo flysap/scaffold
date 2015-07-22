@@ -23,7 +23,7 @@
         "psr-4": {
             "Flysap\\Scaffold\\": "src/"
         },
-        "autoload": ["helpers.php"]
+        "files": ["helpers.php"]
     },
     "minimum-stability": "dev"
 }
