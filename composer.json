@@ -10,7 +10,8 @@
     "require": {
         "laravel/framework": "~5.1",
         "flysap/form-builder": "dev-master",
-        "symfony/yaml": "~2.7"
+        "symfony/yaml": "~2.7",
+        "symfony/filesystem": "~2.7"
     },
     "license": "MIT",
     "authors": [

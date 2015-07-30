@@ -5,6 +5,7 @@ namespace Flysap\Scaffold;
 use Flysap\Scaffold\Contracts\ScaffoldServiceContract;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
 class ScaffoldServiceProvider extends Serviceprovider {
@@ -31,6 +32,12 @@ class ScaffoldServiceProvider extends Serviceprovider {
            return new Columns(
                DB::connection()
            );
+        });
+
+        $this->app->singleton('form-builder', function($app) {
+            return new FormBuilder(
+                new Filesystem(), $app['form']
+            );
         });
     }
 
