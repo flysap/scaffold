@@ -8,7 +8,7 @@ use Flysap\Scaffold\Exceptions\FormException;
 use Illuminate\Config\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Symfony\Component\Filesystem\Filesystem;
+use Flysap\Support;
 
 /**
  * Class Form
@@ -17,24 +17,9 @@ use Symfony\Component\Filesystem\Filesystem;
 class FormBuilder {
 
     /**
-     * @var Repository
-     */
-    protected $configRepository;
-
-    /**
      * @var
      */
     protected $elements;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var array
-     */
-    protected $supportedFormats = ['php'];
 
     /**
      * @var string
@@ -42,24 +27,12 @@ class FormBuilder {
     protected $defaultField = 'text';
 
     /**
-     * Default attributes form .
-     *
-     * @var array
+     * @var Repository
      */
-    protected $default = [
-        'method'   => Form::METHOD_POST,
-        'encoding' => Form::ENCTYPE_MULTIPART
-    ];
+    private $formConfigurations;
 
-    /**
-     * @var Form
-     */
-    private $form;
-
-    public function __construct(Filesystem $filesystem, Form $form) {
-        $this->configRepository = (new Repository(config('form-builder')));
-        $this->filesystem = $filesystem;
-        $this->form = $form;
+    public function __construct(Repository $formConfigurations) {
+        $this->formConfigurations = $formConfigurations;
     }
 
     /**
@@ -84,9 +57,6 @@ class FormBuilder {
                     _("Invalid element type")
                 );
         }
-
-        if( ! $attributes )
-            $attributes = $this->default;
 
         return new Form([
             'elements' => $this->elements,
@@ -115,19 +85,12 @@ class FormBuilder {
      * @throws FormException
      */
     public function fromFile($pathToFile, ScaffoldAble $eloquent, array $attributes = array()) {
-        if (!$this->filesystem->exists(
+        if (! Support\is_path_exists(
             config_path($pathToFile)
         ))
             throw new FormException(_("Invalid path config file"));
 
-        $pathInfo = pathinfo(
-            config_path($pathToFile)
-        );
-
-        if (! array_key_exists($pathInfo['extension'], $this->supportedFormats))
-            throw new FormException(_("Invalid file format"));
-
-        $array = require_once config_path($pathToFile);
+        $array = require config_path($pathToFile);
 
         return $this->fromArray(
             $array, $eloquent, $attributes
@@ -135,9 +98,6 @@ class FormBuilder {
     }
 
 
-    /**
-     * #@todo refactor that code .
-     */
 
     /**
      * Process single key .
@@ -220,7 +180,6 @@ class FormBuilder {
                     $value = isset($field['value']) ? $field['value'] : $value;
             }
 
-
             if( $value instanceof Collection ) {
                 foreach ($value as $eloquent) {
                     $this->processArrayKey($key, $field, $eloquent, true);
@@ -299,36 +258,20 @@ class FormBuilder {
         return $this;
     }
 
-    /**
-     * Processing value .
-     *
-     * @param $field
-     * @param Model $eloquent
-     * @return mixed
-     */
-    protected function processValue($field, Model $eloquent) {
-        if ($field instanceof Model) {
-
-        } elseif ($field instanceof Collection) {
-
-        } else {
-            return $eloquent->{$field};
-        }
-    }
 
     /**
      * @return mixed
      * @throws FormException
      */
     protected function getAliasFields() {
-        if (!$this->configRepository->has('fields'))
+        if (!$this->formConfigurations->has('fields'))
             throw new FormException(
                 _("Invalid fields")
             );
 
         #@todo return null if no fields ..
 
-        $fields = $this->configRepository
+        $fields = $this->formConfigurations
             ->get('fields');
 
         return $fields;
@@ -349,7 +292,6 @@ class FormBuilder {
                 _("Invalid element")
             );
         }
-
 
         return $this->getAliasFields()[$alias];
     }

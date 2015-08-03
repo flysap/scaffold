@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PDO;
 
-require_once("helpers.php");
+require_once(__DIR__ . DIRECTORY_SEPARATOR . "../helpers.php");
 
 class Columns {
 
@@ -53,7 +53,7 @@ class Columns {
     }
 
     /**
-     * Get oolumns from eloquent .
+     * Get columns from eloquent .
      *
      * @param Model $model
      * @return $this
@@ -181,7 +181,7 @@ class Columns {
             DB::setFetchMode(PDO::FETCH_ASSOC);
             $fields = DB::select($query);
 
-            $fields = array_change_key_case_recursive($fields);
+            $fields = \Flysap\Scaffold\array_change_key_case_recursive($fields);
 
             array_map(function($field) {
                $this->fields[$field['field']] = $field;

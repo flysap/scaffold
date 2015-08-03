@@ -5,8 +5,8 @@ namespace Flysap\Scaffold;
 use Flysap\Scaffold\Contracts\ScaffoldServiceContract;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
+use Illuminate\Config\Repository;
 
 class ScaffoldServiceProvider extends Serviceprovider {
 
@@ -36,7 +36,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
 
         $this->app->singleton('form-builder', function($app) {
             return new FormBuilder(
-                new Filesystem(), $app['form']
+                new Repository(config('form-builder'))
             );
         });
     }
