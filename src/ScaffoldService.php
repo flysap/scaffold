@@ -10,27 +10,32 @@ class ScaffoldService {
     public function lists($model) {
         $eloquent = $this->getModel($model);
 
-        $form     = $this->getBuilder()->fromEloquent($eloquent);
+        $form     = $this->getBuilder($eloquent);
 
         return view('scaffold::scaffold.lists', compact('form'));
     }
 
-    public function create() {
+    public function create($model) {
+        $eloquent = $this->getModel($model);
 
+        $form     = $this->getBuilder($eloquent);
+
+        return view('scaffold::scaffold.create', compact('form'));
     }
 
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
-        $form     = $this->getBuilder()->fromEloquent($eloquent);
+        $form     = $this->getBuilder($eloquent);
 
         return view('scaffold::scaffold.edit', compact('form'));
     }
 
+
     /**
      * Get file instance ..
      *
-     * @param $model
+     * @param $file
      * @param null $identificator
      * @return mixed
      */
@@ -72,8 +77,19 @@ class ScaffoldService {
         return config('scaffold.model_namespaces');
     }
 
-    private function getBuilder() {
-        return app('form-builder');
+    /**
+     * Get builder .
+     *
+     * @param null $eloquent
+     * @return \Illuminate\Foundation\Application|mixed
+     */
+    private function getBuilder($eloquent = null) {
+        $builder = app('form-builder');
+
+        if(! $eloquent)
+            return $builder->fromEloquent($eloquent);
+
+        return $builder;
     }
 
 }
