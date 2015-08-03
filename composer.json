@@ -10,6 +10,7 @@
     "require": {
         "laravel/framework": "~5.1",
         "flysap/form-builder": "dev-master",
+        "flysap/support": "dev-master",
         "symfony/yaml": "~2.7",
         "symfony/filesystem": "~2.7"
     },
