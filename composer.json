@@ -5,11 +5,16 @@
       {
         "type": "git",
         "url" : "git@github.com:flysap/form-builder.git"
+      },
+      {
+        "type": "git",
+        "url" : "git@github.com:flysap/table-manager.git"
       }
     ],
     "require": {
         "laravel/framework": "~5.1",
         "flysap/form-builder": "dev-master",
+        "flysap/table-manager": "dev-master",
         "flysap/support": "dev-master",
         "symfony/yaml": "~2.7",
         "symfony/filesystem": "~2.7"
