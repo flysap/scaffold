@@ -48,7 +48,7 @@ trait ScaffoldTrait {
         $columns = $this->tableFields();
 
         if( isset($this->list) )
-            return array_only($columns, $this->list);
+            return array_merge(array_keys($columns), $this->list);
 
         return array_keys($columns);
     }
