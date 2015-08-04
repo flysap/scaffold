@@ -50,7 +50,7 @@ trait ScaffoldTrait {
         if( isset($this->list) )
             return array_only($columns, $this->list);
 
-        return $columns;
+        return array_keys($columns);
     }
 
     /**

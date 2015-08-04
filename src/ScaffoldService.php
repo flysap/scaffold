@@ -3,6 +3,7 @@
 namespace Flysap\Scaffold;
 
 use Flysap\Support;
+use Flysap\TableManager\Table;
 use Modules;
 
 class ScaffoldService {
@@ -10,9 +11,9 @@ class ScaffoldService {
     public function lists($model) {
         $eloquent = $this->getModel($model);
 
-        $form     = $this->getBuilder($eloquent);
+        $table = Table::fromEloquent($eloquent, ['class' => 'table table-bordered table-striped']);
 
-        return view('scaffold::scaffold.lists', compact('form'));
+        return view('scaffold::scaffold.lists', compact('table'));
     }
 
     public function create($model) {
