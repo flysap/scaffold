@@ -3,15 +3,25 @@
 namespace Flysap\Scaffold;
 
 use Flysap\Support;
-use Flysap\TableManager\Table;
+use Flysap\TableManager;
 use Modules;
+use Input;
 
 class ScaffoldService {
 
     public function lists($model) {
         $eloquent = $this->getModel($model);
 
-        $table = Table::fromEloquent($eloquent, ['class' => 'table table-bordered table-striped']);
+        $request = Input::all();
+
+        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
+        $table->filter(function($eloquent) use($request) {
+            foreach ($request as $key => $value)
+                if( $eloquent->getAttribute($key) )
+                    $eloquent->where($key, $value);
+
+            return $eloquent;
+        });
 
         return view('scaffold::scaffold.lists', compact('table'));
     }

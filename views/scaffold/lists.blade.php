@@ -23,6 +23,7 @@
                     </div><!-- /.box-header -->
                     <div class="box-body">
                         {!! $table !!}
+                        {!! \Flysap\TableManager\render_pagination($table) !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
             </div><!-- /.col -->
