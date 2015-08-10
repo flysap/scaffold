@@ -22,6 +22,7 @@
                         <h3 class="box-title">Data Table With Full Features</h3>
                     </div><!-- /.box-header -->
                     <div class="box-body">
+                        {!! \Flysap\TableManager\render_filter_form($table) !!}
                         {!! $table !!}
                         {!! \Flysap\TableManager\render_pagination($table) !!}
                     </div><!-- /.box-body -->
