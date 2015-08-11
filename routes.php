@@ -2,7 +2,7 @@
 
 Route::group(['prefix' => 'scaffold', 'as' => 'scaffold::'], function() {
 
-    Route::get('{eloquent_path}', ['as' => 'main', function($file) {
+    Route::match(['post', 'get'],'{eloquent_path}', ['as' => 'main', function($file) {
         return app('scaffold')
             ->lists($file);
     }])->where('eloquent_path', "^([a-z\\/]+)");
