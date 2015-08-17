@@ -15,3 +15,4 @@ function array_change_key_case_recursive($arr) {
         return $item;
     }, array_change_key_case($arr));
 }
+

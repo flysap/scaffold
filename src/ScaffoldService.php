@@ -2,8 +2,9 @@
 
 namespace Flysap\Scaffold;
 
-use Flysap\Support;
 use Flysap\TableManager;
+use Flysap\Scaffold\Builders\Eloquent;
+use Flysap\Support;
 use Modules;
 use Input;
 
@@ -14,14 +15,16 @@ class ScaffoldService {
 
         $request = Input::all();
 
-        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
-        $table->filter(function($eloquent) use($request) {
-            foreach ($request as $key => $value)
-                if( $eloquent->getAttribute($key) )
-                    $eloquent->where($key, $value);
+        $eloquent = new \App\User;
 
-            return $eloquent;
-        });
+        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
+
+        if( isset($request['download']) ) {
+            $data = $table->convertTo($request['download']);
+
+            return response()
+                ->download($data);
+        }
 
         return view('scaffold::scaffold.lists', compact('table'));
     }
@@ -29,7 +32,8 @@ class ScaffoldService {
     public function create($model) {
         $eloquent = $this->getModel($model);
 
-        $form     = $this->getBuilder($eloquent);
+        $form = (new Eloquent($eloquent))
+            ->build();
 
         return view('scaffold::scaffold.create', compact('form'));
     }
@@ -37,7 +41,8 @@ class ScaffoldService {
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
-        $form     = $this->getBuilder($eloquent);
+        $form = (new Eloquent($eloquent))
+            ->build();
 
         return view('scaffold::scaffold.edit', compact('form'));
     }
@@ -51,7 +56,7 @@ class ScaffoldService {
      * @return mixed
      */
     private function getModel($file, $identificator = null) {
-        $spaces = $this->getSpaces();
+        $spaces = config('scaffold.model_namespaces');
         list($vendor, $user, $model) = explode('/', $file);
 
         foreach ($spaces as $space) {
@@ -77,30 +82,6 @@ class ScaffoldService {
         }
 
         return $model;
-    }
-
-    /**
-     * Get namespaces .
-     *
-     * @return mixed
-     */
-    private function getSpaces() {
-        return config('scaffold.model_namespaces');
-    }
-
-    /**
-     * Get builder .
-     *
-     * @param null $eloquent
-     * @return \Illuminate\Foundation\Application|mixed
-     */
-    private function getBuilder($eloquent = null) {
-        $builder = app('form-builder');
-
-        if(! $eloquent)
-            return $builder->fromEloquent($eloquent);
-
-        return $builder;
     }
 
 }
