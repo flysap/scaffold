@@ -19,6 +19,41 @@ class Eloquent extends Builder implements BuildAble {
             ->scaffoldEditable();
     }
 
+
+    /**
+     * Get all rules .
+     *
+     * @return mixed
+     */
+    protected function getRules() {
+        return $this->getSource()->rules;
+    }
+
+    /**
+     * Check if has rule .
+     *
+     * @param $field
+     * @return bool
+     */
+    protected function hasRule($field) {
+        $rules = $this->getRules();
+
+        return in_array($field, array_keys($rules));
+    }
+
+    /**
+     * Get rule by key .
+     *
+     * @param $field
+     */
+    public function getRule($field) {
+        if( ! $this->hasRule($field) )
+            return;
+
+        return $this->getRules()[$field];
+    }
+
+
     /**
      * Check if field in casts exits .
      *
@@ -39,6 +74,7 @@ class Eloquent extends Builder implements BuildAble {
         return $this->getSource()->casts[$field];
     }
 
+
     /**
      * Get built elements .
      *
@@ -50,6 +86,9 @@ class Eloquent extends Builder implements BuildAble {
         $elements = [];
 
         foreach ($fields as $key => $value) {
+
+            $fieldName = is_numeric($key) ? $value : $key;
+
             if( $this->isRelation($key, $value) ) {
                 list($table, $field) = $this->getRelationMeta($key, $value);
 
@@ -59,11 +98,16 @@ class Eloquent extends Builder implements BuildAble {
 
             } else {
                 $data = $this->getSource()->getAttribute(
-                    is_numeric($key) ? $value : $key
+                    $fieldName
                 );
             }
 
             $input = $this->getInput($key, $value);
+
+            if( $this->hasRule($fieldName) )
+                $input->rules(
+                    $this->getRule($fieldName)
+                );
 
             if( is_array($data) ) {
                 foreach ($data as $value) {
@@ -81,6 +125,7 @@ class Eloquent extends Builder implements BuildAble {
 
         return $elements;
     }
+
 
     /**
      * Get relation data from source .
@@ -143,6 +188,7 @@ class Eloquent extends Builder implements BuildAble {
         return preg_match('/\\w+\\.{1}\\w+$/', $field);
     }
 
+
     /**
      * Get input type as object .
      *
@@ -174,6 +220,7 @@ class Eloquent extends Builder implements BuildAble {
 
         return FormBuilder\get_element($input, $attributes);
     }
+
 
     /**
      * Render form .
