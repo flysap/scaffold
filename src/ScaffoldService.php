@@ -2,6 +2,7 @@
 
 namespace Flysap\Scaffold;
 
+use Flysap\Scaffold\Exceptions\ScaffoldException;
 use Flysap\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
@@ -15,9 +16,19 @@ class ScaffoldService {
 
         $request = Input::all();
 
-        $eloquent = new \App\User;
-
         $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
+        $table->addColumn(['closure' => function($value, $attributes) use($model) {
+            $elements = $attributes['elements'];
+
+            $edit_route   = route('scaffold::edit', ['eloquent_path' => $model, 'id' => $elements['id']]);
+            $delete_route = route('scaffold::delete', ['eloquent_path' => $model, 'id' => $elements['id']]);
+
+            return <<<DOC
+<a href="$edit_route">Edit</a><br />
+<a href="$delete_route">Delete</a><br />
+DOC;
+;
+        }], 'action');
 
         if( isset($request['download']) ) {
             $data = $table->convertTo($request['download']);
@@ -41,12 +52,34 @@ class ScaffoldService {
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
+        #@todo temp .
+        $eloquent = \App\User::first();
+
+
         $form = (new Eloquent($eloquent))
-            ->build();
+            ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => ' ']);
+
+        if( $_POST ) {
+            $params = Input::all();
+
+            if( ! $form->isValid($params) )
+                #throw new ScaffoldException(_('Validation failed'));
+
+            $eloquent->fill($params)
+                ->save();
+        }
 
         return view('scaffold::scaffold.edit', compact('form'));
     }
 
+    public function delete($model, $id) {
+        $eloquent = $this->getModel($model, $id);
+
+        $eloquent->delete();
+
+        return redirect()
+            ->back();
+    }
 
     /**
      * Get file instance ..

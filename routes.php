@@ -7,8 +7,13 @@ Route::group(['prefix' => 'scaffold', 'as' => 'scaffold::'], function() {
             ->lists($file);
     }])->where('eloquent_path', "^([a-z\\/]+)");
 
-    Route::get('{eloquent_path}/{id}/edit', ['as' => 'edit', function($file, $id) {
+    Route::match(['post', 'get'], '{eloquent_path}/{id}/edit', ['as' => 'edit', function($file, $id) {
         return app('scaffold')
             ->update($file, $id);
+    }])->where(['eloquent_path' => "^([a-z\\/]+)", 'id' => "(\\d+)"]);
+
+    Route::get('{eloquent_path}/{id}/delete', ['as' => 'delete', function($file, $id) {
+        return app('scaffold')
+            ->delete($file, $id);
     }])->where(['eloquent_path' => "^([a-z\\/]+)", 'id' => "(\\d+)"]);
 });
