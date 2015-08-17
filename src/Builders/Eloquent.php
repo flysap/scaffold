@@ -9,20 +9,41 @@ use PDO;
 
 class Eloquent extends Builder implements BuildAble {
 
-
-    private function getFields() {
+    /**
+     * Get all fields .
+     * 
+     * @return mixed
+     */
+    protected function getFields() {
         return $this->getSource()
             ->scaffoldEditable();
     }
 
-    private function inCasts($field) {
+    /**
+     * Check if field in casts exits .
+     *
+     * @param $field
+     * @return bool
+     */
+    protected function inCasts($field) {
         return isset($this->getSource()->casts[$field]);
     }
 
-    private function getCasts($field) {
+    /**
+     * Get for type in casts .
+     *
+     * @param $field
+     * @return mixed
+     */
+    protected function getCasts($field) {
         return $this->getSource()->casts[$field];
     }
 
+    /**
+     * Get built elements .
+     *
+     * @return array
+     */
     public function getElements() {
         $fields = $this->getFields();
 
@@ -61,6 +82,13 @@ class Eloquent extends Builder implements BuildAble {
         return $elements;
     }
 
+    /**
+     * Get relation data from source .
+     *
+     * @param $table
+     * @param $field
+     * @return array
+     */
     protected function getRelationData($table, $field) {
         if( in_array(str_plural($field), get_class_methods(get_class($this->getSource()))) ) {
             $data = $this->getSource()->{$table}->toArray();
@@ -81,6 +109,13 @@ class Eloquent extends Builder implements BuildAble {
         }, $data);
     }
 
+    /**
+     * Get relation meta .
+     *
+     * @param $key
+     * @param $value
+     * @return array
+     */
     protected function getRelationMeta($key, $value) {
         if( is_numeric($key) )
             $field = $value;
@@ -92,6 +127,13 @@ class Eloquent extends Builder implements BuildAble {
         return $data;
     }
 
+    /**
+     * Check if key is relation .
+     *
+     * @param $key
+     * @param $value
+     * @return int
+     */
     protected function isRelation($key, $value) {
         if( is_numeric($key) )
             $field = $value;
@@ -101,6 +143,14 @@ class Eloquent extends Builder implements BuildAble {
         return preg_match('/\\w+\\.{1}\\w+$/', $field);
     }
 
+    /**
+     * Get input type as object .
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     * @throws FormBuilder\ElementException
+     */
     protected function getInput($key, $value) {
         $input      = null;
         $attributes = [];
@@ -117,17 +167,34 @@ class Eloquent extends Builder implements BuildAble {
             $attributes = is_array($value) ? $value : [];
         }
 
+        if( is_numeric($key) )
+            $attributes['name'] = $value;
+        else
+            $attributes['name'] = $key;
+
         return FormBuilder\get_element($input, $attributes);
     }
 
+    /**
+     * Render form .
+     *
+     * @param null $group
+     * @return string
+     */
     public function render($group = null) {
         $form = $this->build();
 
         return $form->render($group);
     }
 
-    public function build() {
-        $form = new FormBuilder\Form();
+    /**
+     * Build form .
+     *
+     * @param array $params
+     * @return FormBuilder\Form
+     */
+    public function build($params = array()) {
+        $form = new FormBuilder\Form($params);
         $form->setElements(
             $this->getElements()
         );
