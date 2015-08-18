@@ -15,7 +15,8 @@
     <!-- Main content -->
     <section class="content">
 
-        <div class="row">
+        {!!Flysap\FormBuilder\open_form($form)!!}
+            <div class="row">
             <div class="col-md-12">
 
                 @if( Flysap\FormBuilder\has_groups($form) )
@@ -34,7 +35,12 @@
                             @foreach($form->getGroups() as $key => $group)
                                 <?php $counter++; ?>
                                 <div class="tab-pane {{$counter == 1 ? 'active' : ''}}" id="tab_{{$counter}}">
-                                    {!! Flysap\FormBuilder\render_group($key, $form) !!}
+                                    <?php $elements = $form->getGroup($key)->getElements(); ?>
+
+                                    @foreach($elements as $element)
+                                        @include('scaffold::scaffold.partials.element', ['element' => $element, 'form' => $form])
+                                    @endforeach
+
                                 </div><!-- /.tab-pane -->
                             @endforeach
 
@@ -43,16 +49,20 @@
                 @else
                     <div class="box">
                         <div class="box-body">
-                            {!!Flysap\FormBuilder\open_form($form)!!}
-                            {!!Flysap\FormBuilder\render($form, false)!!}
-                            {!!Flysap\FormBuilder\render_button(['value' => 'Submit', 'type' => 'submit'])!!}
-                            {!!Flysap\FormBuilder\close_form($form)!!}
+                            <?php $elements = $form->getElements(); ?>
+
+                            @foreach($elements as $element)
+                                @include('scaffold::scaffold.partials.element', ['element' => $element, 'form' => $form])
+                            @endforeach
+
                         </div><!-- /.box-body -->
                     </div><!-- /.box -->
                 @endif
 
             </div><!-- /.col -->
         </div> <!-- /.row -->
+        {!!Flysap\FormBuilder\render_button(['value' => 'Submit', 'type' => 'submit'])!!}
+        {!!Flysap\FormBuilder\close_form($form)!!}
 
     </section><!-- /.content -->
 @endsection
