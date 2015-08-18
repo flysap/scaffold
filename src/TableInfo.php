@@ -88,7 +88,7 @@ class TableInfo {
                 if( preg_match("/^(".$key.")/i", $column['type'], $matches) )
                     break;
 
-            $unmasked[$key] = @$this->alias[$matches[1]] ?: 'text';
+            $unmasked[$column['name']] = @$this->alias[$matches[1]] ?: 'text';
         }
 
         return $unmasked;
