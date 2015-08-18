@@ -1,11 +1,3 @@
-mask:
-  int:        number
-  varchar:    text
-  longtext:   textarea
-  text:       textarea
-  timestamp:  date
-  date:       date
-
 # here will be declared an list of namespaces
 model_namespaces:
   - storage/modules
