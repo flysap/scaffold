@@ -7,7 +7,7 @@ trait ScaffoldTrait {
     /**
      * @var
      */
-    protected $tableFields;
+    protected $columnsTable;
 
     /**
      * Return scaffold editable .
@@ -15,7 +15,7 @@ trait ScaffoldTrait {
      * @return array
      */
     public function scaffoldEditable() {
-        $columns = $this->tableFields();
+        $columns = $this->columnsTable();
 
         if( isset($this->fillable) )
             return array_only($columns, $this->fillable);
@@ -31,7 +31,9 @@ trait ScaffoldTrait {
      * @return array|mixed
      */
     public function scaffoldFilter() {
-        $columns = $this->tableFields();
+        $columns = $this->columnsTable();
+
+        unset($columns['id']);
 
         if( isset($this->filter) )
             return array_only($columns, $this->filter);
@@ -45,12 +47,12 @@ trait ScaffoldTrait {
      * @return array|mixed
      */
     public function scaffoldListing() {
-        $columns = $this->tableFields();
+        $columns = $this->columnsTable();
 
         if( isset($this->list) )
             return array_merge(array_keys($columns), $this->list);
 
-        return array_keys($columns);
+        return $columns;
     }
 
     /**
@@ -58,16 +60,21 @@ trait ScaffoldTrait {
      *
      * @return mixed
      */
-    protected function tableFields() {
-        if(! $this->tableFields) {
-            $scaffoldColumns = app('scaffold-columns');
+    protected function columnsTable() {
+        if(! $this->columnsTable) {
+            $tableInfo = app('table-info')
+                ->setConnection(
+                    $this->getConnection()
+                );
 
-            $this->tableFields = $scaffoldColumns->fromEloquent($this)
-                ->fields()
-                ->unmask();
+            $columns = $tableInfo->columns(
+                $this->getTable()
+            );
+
+            $this->columnsTable = $tableInfo->unmask($columns);
         }
 
-        return $this->tableFields;
+        return $this->columnsTable;
     }
 
 }

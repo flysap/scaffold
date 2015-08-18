@@ -29,13 +29,9 @@ class ScaffoldServiceProvider extends Serviceprovider {
             return new ScaffoldService();
         });
 
-        $this->app->singleton('scaffold-columns', function() {
-           return new Columns(
-               DB::connection()
-           );
-        });
+        $this->app->singleton('table-info', TableInfo::class);
 
-        $this->app->singleton('form-builder', function($app) {
+        $this->app->singleton('form-builder', function() {
             return new FormBuilder(
                 new Repository(config('form-builder'))
             );
