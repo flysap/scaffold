@@ -52,10 +52,6 @@ DOC;
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
-        #@todo temp .
-        $eloquent = \App\User::first();
-
-
         $form = (new Eloquent($eloquent))
             ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => ' ']);
 
