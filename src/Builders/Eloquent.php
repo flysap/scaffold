@@ -26,7 +26,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return mixed
      */
     protected function getRules() {
-        return $this->getSource()->rules;
+        return isset($this->getSource()->rules) ?: [];
     }
 
     /**
@@ -243,7 +243,7 @@ class Eloquent extends Builder implements BuildAble {
     public function build($params = array()) {
         $form = new FormBuilder\Form($params);
         $form->setElements(
-            $this->getElements()
+            $this->getElements(), true
         );
 
         return $form;
