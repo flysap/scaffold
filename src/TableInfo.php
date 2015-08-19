@@ -14,6 +14,8 @@ class TableInfo {
 
     protected $alias = [
         'int' => 'text',
+        'enum' => 'select',
+        'tinyint' => 'checkbox',
         'varchar' => 'text',
         'longtext' => 'textarea',
         'text' => 'textarea',
@@ -88,7 +90,26 @@ class TableInfo {
                 if( preg_match("/^(".$key.")/i", $column['type'], $matches) )
                     break;
 
-            $unmasked[$column['name']] = @$this->alias[$matches[1]] ?: 'text';
+            #@todo for sqlite | mysql
+            $name = isset($column['name']) ? $column['name'] : $column['field'];
+
+            switch($matches[1]) {
+                case 'enum':
+                    $options = [];
+                        if( preg_match_all("/'(.*?)'/", $column['type'], $matches) )
+                            $options = $matches[1];
+
+                        $unmasked[$name] = ['type' => $this->alias['enum'], 'options' => $options];
+                    break;
+
+                case 'tinyint':
+                        $unmasked[$name] = ['type' => $this->alias['tinyint']];
+                    break;
+
+                default:
+                        $unmasked[$name] = isset($this->alias[$matches[1]]) ? $this->alias[$matches[1]] : 'text';
+                    break;
+            }
         }
 
         return $unmasked;
