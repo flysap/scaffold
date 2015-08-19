@@ -12,6 +12,7 @@ abstract class Builder {
         $this->setSource($source);
     }
 
+
     /**
      * Set source .
      *
@@ -33,7 +34,29 @@ abstract class Builder {
         return $this->source;
     }
 
+
+    /**
+     * Render form .
+     *
+     * @param null $group
+     * @return string
+     */
+    public function render($group = null) {
+        $form = $this->build();
+
+        return $form->render($group);
+    }
+
     public function __toString() {
         return $this->render();
     }
+
+
+    /**
+     * Building ..
+     *
+     * @param array $params
+     * @return mixed
+     */
+    abstract function build($params = array());
 }
