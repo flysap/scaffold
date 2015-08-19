@@ -26,7 +26,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return mixed
      */
     protected function getRules() {
-        return isset($this->getSource()->rules) ?: [];
+        return isset($this->getSource()->rules) ? $this->getSource()->rules : [];
     }
 
     /**

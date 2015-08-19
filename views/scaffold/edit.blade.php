@@ -38,7 +38,7 @@
                                     <?php $elements = $form->getGroup($key)->getElements(); ?>
 
                                     @foreach($elements as $element)
-                                        @include('scaffold::scaffold.partials.element', ['element' => $element, 'form' => $form])
+                                        @include('scaffold::scaffold.partials.element')
                                     @endforeach
 
                                 </div><!-- /.tab-pane -->
@@ -52,7 +52,7 @@
                             <?php $elements = $form->getElements(); ?>
 
                             @foreach($elements as $element)
-                                @include('scaffold::scaffold.partials.element', ['element' => $element, 'form' => $form])
+                                @include('scaffold::scaffold.partials.element')
                             @endforeach
 
                         </div><!-- /.box-body -->
