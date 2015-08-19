@@ -221,19 +221,6 @@ class Eloquent extends Builder implements BuildAble {
         return FormBuilder\get_element($input, $attributes);
     }
 
-
-    /**
-     * Render form .
-     *
-     * @param null $group
-     * @return string
-     */
-    public function render($group = null) {
-        $form = $this->build();
-
-        return $form->render($group);
-    }
-
     /**
      * Build form .
      *
@@ -248,4 +235,6 @@ class Eloquent extends Builder implements BuildAble {
 
         return $form;
     }
+
+
 }
