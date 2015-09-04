@@ -99,7 +99,12 @@ class TableInfo {
                         if( preg_match_all("/'(.*?)'/", $column['type'], $matches) )
                             $options = $matches[1];
 
-                        $unmasked[$name] = ['type' => $this->alias['enum'], 'options' => $options];
+                        $newOptions = [];
+                        foreach ($options as $key => $value) {
+                            $newOptions[$value] = $value;
+                        }
+
+                        $unmasked[$name] = ['type' => $this->alias['enum'], 'options' => $newOptions];
                     break;
 
                 case 'tinyint':
