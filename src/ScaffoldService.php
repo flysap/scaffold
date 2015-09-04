@@ -2,10 +2,10 @@
 
 namespace Flysap\Scaffold;
 
-use Flysap\Scaffold\Exceptions\ScaffoldException;
 use Flysap\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
+use Illuminate\Http\Request;
 use Modules;
 use Input;
 
@@ -53,16 +53,28 @@ DOC;
         $eloquent = $this->getModel($model, $id);
 
         $form = (new Eloquent($eloquent))
-            ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => ' ']);
+            ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '']);
 
         if( $_POST ) {
             $params = Input::all();
 
-            if( ! $form->isValid($params) )
+            #if( ! $form->isValid($params) )
                 #throw new ScaffoldException(_('Validation failed'));
+
+            if( isset($params['meta']) )
+                $eloquent->syncMeta($params['meta']);
+
+            if( isset($params['seo']) )
+                $eloquent->storeSeo($params['seo']);
+
+            if( isset($params['images']) )
+                $eloquent->upload($params['images']);
 
             $eloquent->fill($params)
                 ->save();
+
+            return redirect()
+                ->back();
         }
 
         return view('scaffold::scaffold.edit', compact('form'));
@@ -75,6 +87,15 @@ DOC;
 
         return redirect()
             ->back();
+    }
+
+    /**
+     * Custom requests .
+     *
+     * @param Request $request
+     */
+    public function custom(Request $request) {
+        #@todo
     }
 
     /**
