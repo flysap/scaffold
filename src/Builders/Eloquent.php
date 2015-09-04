@@ -2,16 +2,169 @@
 
 namespace Flysap\Scaffold\Builders;
 
+use DataExporter\DriverAssets\Eloquent\Exportable;
+use Eloquent\ImageAble\ImageAble;
+use Eloquent\Meta\MetaAble;
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
 use Flysap\FormBuilder;
+use Laravel\Meta\Eloquent\MetaSeoable;
 use PDO;
+use Laravel\Meta;
+use Localization as Locale;
+use DataExporter;
 
+/**
+ * Class Eloquent
+ * @package Flysap\Scaffold\Builders
+ */
 class Eloquent extends Builder implements BuildAble {
+
+
+    /**
+     * Get built elements .
+     *
+     * @return array
+     */
+    public function getElements() {
+        $fields = $this->getFields();
+
+        $elements = [];
+
+        foreach ($fields as $key => $value) {
+
+            $fieldName = is_numeric($key) ? $value : $key;
+
+            if( $this->isRelation($key, $value) ) {
+                list($table, $field) = $this->getRelationMeta($key, $value);
+
+                $data = $this->getRelationData(
+                    $table, $field
+                );
+
+            } else {
+                $data = $this->getSource()->getAttribute(
+                    $fieldName
+                );
+            }
+
+            $input = $this->getInput($key, $value);
+
+
+            if( $this->hasRule($fieldName) )
+                $input->rules(
+                    $this->getRule($fieldName)
+                );
+
+            if(! is_array($data))
+                $data = (array)$data;
+
+            foreach ($data as $value) {
+                $input = clone $input;
+
+                $input->value($value);
+                $elements[] = $input;
+            }
+        }
+
+        $source = $this->getSource();
+
+        /**
+         * If Metaable than have meta
+         *
+         */
+        if( $source instanceof MetaSeoable ) {
+            $locales = Locale\get_locales();
+
+            foreach($locales as $locale => $options) {
+                $meta = Meta\meta_eloquent($source, $locale);
+
+                foreach ($meta->toArray(true) as $key => $value) {
+                    $elements[]  = FormBuilder\get_element('text', [
+                        'name'  => 'seo['.$locale.']['.$key.']',
+                        'value' => $value,
+                        'group' => 'Seo',
+                        'label' => $locale .' ' . ucfirst($key)
+                    ]);
+                }
+            }
+        }
+
+        /**
+         * If exportable than can download .
+         */
+        if( $source instanceof Exportable ) {
+            $exporters = DataExporter\get_exporters();
+
+            foreach($exporters as $exporter => $options) {
+                $elements[]  = FormBuilder\get_element('link', [
+                    'name'  => $exporter,
+                    'group' => 'export',
+                    'title' => 'Download in ' .ucfirst($exporter),
+                    'href'  => ucfirst($exporter)
+                ]);
+            }
+        }
+
+        /**
+         * If Imageable than can have images .
+         *
+         */
+        if( $source instanceof ImageAble ) {
+            $images = $source->images;
+
+            foreach ($images as $image)
+                $elements[]  = FormBuilder\get_element('image', [
+                    'src'  => $image->path,
+                    'title'  => $image->title,
+                    'group' => 'images',
+                ]);
+
+            $elements[]  = FormBuilder\get_element('file', [
+                'group' => 'images',
+                'label' => 'Upload images',
+                'name'  => 'images[]',
+            ]);
+        }
+
+        /** if Metaable than can have meta attributes */
+        if( $source instanceof MetaAble ) {
+            $meta = $source->meta;
+
+            foreach ($meta as $value) {
+                $elements[]  = FormBuilder\get_element('text', [
+                    'name'  => 'meta['.$value->key.']',
+                    'group' => 'meta',
+                    'value' => $value->value,
+                    'label' => ucfirst($value->key)
+                ]);
+            }
+
+        }
+
+        return $elements;
+    }
+
+    /**
+     * Build form .
+     *
+     * @param array $params
+     * @return FormBuilder\Form
+     */
+    public function build($params = array()) {
+        $form = new FormBuilder\Form($params);
+        $form->setElements(
+            $this->getElements(), true
+        );
+
+        return $form;
+    }
+
+
 
     /**
      * Get all fields .
-     * 
+     *
      * @return mixed
      */
     protected function getFields() {
@@ -73,59 +226,6 @@ class Eloquent extends Builder implements BuildAble {
     protected function getCasts($field) {
         return $this->getSource()->casts[$field];
     }
-
-
-    /**
-     * Get built elements .
-     *
-     * @return array
-     */
-    public function getElements() {
-        $fields = $this->getFields();
-
-        $elements = [];
-
-        foreach ($fields as $key => $value) {
-
-            $fieldName = is_numeric($key) ? $value : $key;
-
-            if( $this->isRelation($key, $value) ) {
-                list($table, $field) = $this->getRelationMeta($key, $value);
-
-                $data = $this->getRelationData(
-                    $table, $field
-                );
-
-            } else {
-                $data = $this->getSource()->getAttribute(
-                    $fieldName
-                );
-            }
-
-            $input = $this->getInput($key, $value);
-
-            if( $this->hasRule($fieldName) )
-                $input->rules(
-                    $this->getRule($fieldName)
-                );
-
-            if( is_array($data) ) {
-                foreach ($data as $value) {
-                    $input = clone $input;
-
-                    $input->value($value);
-                    $elements[] = $input;
-                }
-            } else {
-                $input->value($data);
-
-                $elements[] = $input;
-            }
-        }
-
-        return $elements;
-    }
-
 
     /**
      * Get relation data from source .
@@ -220,21 +320,5 @@ class Eloquent extends Builder implements BuildAble {
 
         return FormBuilder\get_element($input, $attributes);
     }
-
-    /**
-     * Build form .
-     *
-     * @param array $params
-     * @return FormBuilder\Form
-     */
-    public function build($params = array()) {
-        $form = new FormBuilder\Form($params);
-        $form->setElements(
-            $this->getElements(), true
-        );
-
-        return $form;
-    }
-
 
 }
