@@ -12,45 +12,6 @@ use DataExporter;
 
 class Eloquent extends Builder implements BuildAble {
 
-
-    /**
-     * Get built elements .
-     *
-     * @return array
-     */
-    public function getElements() {
-        $fields   = $this->getFields();
-        $elements = [];
-
-
-        array_walk($fields, function($field, $key) use(& $elements) {
-            $attribute = is_numeric($key) ? $field : $key;
-
-            /** If field is relation */
-            $attributeField = false;
-            if( preg_match('/\\w+\\.{1}\\w+$/', $attribute) )
-                list($attribute, $attributeField) = explode('.', $attribute);
-
-            $values = function($attribute) {
-                $result = $this->getSource()
-                    ->getAttribute($attribute);
-
-                if(! $result instanceof Collection)
-                    $result = collect([$result]);
-
-                return $result;
-            };
-
-            foreach ($values($attribute) as $value) {
-                $element = $this->getInput($key, $field);
-                $element->value(( $attributeField ) ? $value[$attributeField] : $value);
-                $elements[] = $element;
-            }
-        });
-
-        return array_merge($elements, $this->getAppliedPackages());
-    }
-
     /**
      * Build form .
      *
@@ -66,16 +27,41 @@ class Eloquent extends Builder implements BuildAble {
         return $form;
     }
 
-
-
     /**
-     * Get all fields .
+     * Get built elements .
      *
-     * @return mixed
+     * @return array
      */
-    protected function getFields() {
-        return $this->getSource()
-            ->scaffoldEditable();
+    public function getElements() {
+        $fields   = $this->getSource()->scaffoldEditable();
+        $elements = [];
+
+        array_walk($fields, function($field, $key) use(& $elements) {
+            $attribute = is_numeric($key) ? $field : $key;
+
+            /** If field is relation */
+            $relationField = false;
+            if( preg_match('/\\w+\\.{1}\\w+$/', $attribute) )
+                list($attribute, $relationField) = explode('.', $attribute);
+
+            $values = function($attribute) {
+                $result = $this->getSource()
+                    ->getAttribute($attribute);
+
+                if(! $result instanceof Collection)
+                    $result = collect([$result]);
+
+                return $result;
+            };
+
+            foreach ($values($attribute) as $value) {
+                $element = $this->getInput($key, $field);
+                $element->value(( $relationField ) ? $value[$relationField] : $value);
+                $elements[] = $element;
+            }
+        });
+
+        return $this->getAppliedPackages($elements);
     }
 
 
@@ -89,48 +75,46 @@ class Eloquent extends Builder implements BuildAble {
     }
 
     /**
-     * Check if has rule .
-     *
-     * @param $field
-     * @return bool
-     */
-    protected function hasRule($field) {
-        $rules = $this->getRules();
-
-        return in_array($field, array_keys($rules));
-    }
-
-    /**
      * Get rule by key .
      *
-     * @param $field
+     * @param $attribute
+     * @return null
      */
-    public function getRule($field) {
-        if( ! $this->hasRule($field) )
-            return;
-
-        return $this->getRules()[$field];
+    public function getRule($attribute) {
+        return $this->hasRule($attribute) ? $this->getRules()[$attribute] : null;
     }
-
 
     /**
-     * Check if field in casts exits .
+     * Check if has rule .
      *
-     * @param $field
+     * @param $attribute
      * @return bool
      */
-    protected function inCasts($field) {
-        return isset($this->getSource()->casts[$field]);
+    protected function hasRule($attribute) {
+        $rules = $this->getRules();
+
+        return in_array($attribute, array_keys($rules));
     }
+
 
     /**
      * Get for type in casts .
      *
-     * @param $field
+     * @param $attribute
      * @return mixed
      */
-    protected function getCasts($field) {
-        return $this->getSource()->casts[$field];
+    protected function getCasts($attribute) {
+        return $this->hasCasts($attribute) ? $this->getSource()->casts[$attribute] : null;
+    }
+
+    /**
+     * Check if field in casts exits .
+     *
+     * @param $attribute
+     * @return bool
+     */
+    protected function hasCasts($attribute) {
+        return isset($this->getSource()->casts[$attribute]);
     }
 
 
@@ -149,7 +133,7 @@ class Eloquent extends Builder implements BuildAble {
 
         if( is_numeric($key) ) {
             /** If key is numeric i have to found the type of key in casts or set default type . */
-            if( $this->inCasts($value) )
+            if( $this->hasCasts($value) )
                 $input = $this->getCasts($value);
             else
                 $input = self::DEFAULT_TYPE_ELEMENT;

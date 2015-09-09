@@ -48,11 +48,12 @@ abstract class Builder {
     /**
      * Apply other packages ..
      *
+     * @param array $elements
+     * @return array
      * @throws FormBuilder\ElementException
      */
-    public function getAppliedPackages() {
+    public function getAppliedPackages(array $elements = array()) {
         $source   = $this->getSource();
-        $elements = [];
 
         /**
          * If Metaable than have meta
