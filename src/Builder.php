@@ -24,7 +24,6 @@ abstract class Builder {
         $this->setSource($source);
     }
 
-
     /**
      * Set source .
      *
@@ -131,7 +130,6 @@ abstract class Builder {
         return $elements;
     }
 
-
     /**
      * Render form .
      *
@@ -147,7 +145,6 @@ abstract class Builder {
     public function __toString() {
         return $this->render();
     }
-
 
     /**
      * Building ..
