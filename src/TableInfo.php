@@ -5,8 +5,7 @@ namespace Flysap\Scaffold;
 use Illuminate\Database\ConnectionInterface;
 use PDO;
 use Flysap\Scaffold;
-
-require_once(__DIR__ . DIRECTORY_SEPARATOR . "../helpers.php");
+use Flysap\Support;
 
 class TableInfo {
 
@@ -81,7 +80,7 @@ class TableInfo {
      * @return array
      */
     public function unmask($columns) {
-        $columns = Scaffold\array_change_key_case_recursive($columns);
+        $columns = Support\array_change_key_case_recursive($columns);
 
         $unmasked = $matches =[];
 

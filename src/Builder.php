@@ -6,6 +6,9 @@ abstract class Builder {
 
     const DEFAULT_TYPE_ELEMENT = 'text';
 
+    /**
+     * @var
+     */
     protected $source;
 
     public function __construct($source) {
