@@ -2,33 +2,14 @@
 
 namespace Flysap\Scaffold\Builders;
 
-
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
 use Flysap\FormBuilder;
-use PDO;
+use Illuminate\Support\Collection;
 use Laravel\Meta;
 use Localization as Locale;
 use DataExporter;
 
-/**
- * Having fields i have to construct it from options except some of exceptions ..
- *
- *  Translations exceptions ..
- *   1. Each field can be translatable ..name -> translatable => [ru|ro|en]
- *      if field is translatable that mean eloquent has to implement translatable contract which gave me the possibillity
- *      to extract data for that field in other languages.
- *
- *    Form data will be represented as : field[language][name] => value
- *
- *
- *  Metaable exceptions
- *   1. If source implement Metaable contract that it must have meta, Meta will be represented as translatable fields grouped .
- *
- *
- * Class Eloquent
- * @package Flysap\Scaffold\Builders
- */
 class Eloquent extends Builder implements BuildAble {
 
 
@@ -38,45 +19,34 @@ class Eloquent extends Builder implements BuildAble {
      * @return array
      */
     public function getElements() {
-        $fields = $this->getFields();
-
+        $fields   = $this->getFields();
         $elements = [];
 
-        foreach ($fields as $key => $value) {
 
-            $fieldName = is_numeric($key) ? $value : $key;
+        array_walk($fields, function($field, $key) use(& $elements) {
+            $attribute = is_numeric($key) ? $field : $key;
 
-            if( $this->isRelation($key, $value) ) {
-                list($table, $field) = $this->getRelationMeta($key, $value);
+            /** If field is relation */
+            $attributeField = false;
+            if( preg_match('/\\w+\\.{1}\\w+$/', $attribute) )
+                list($attribute, $attributeField) = explode('.', $attribute);
 
-                $data = $this->getRelationData(
-                    $table, $field
-                );
+            $values = function($attribute) {
+                $result = $this->getSource()
+                    ->getAttribute($attribute);
 
-            } else {
-                $data = $this->getSource()->getAttribute(
-                    $fieldName
-                );
+                if(! $result instanceof Collection)
+                    $result = collect([$result]);
+
+                return $result;
+            };
+
+            foreach ($values($attribute) as $value) {
+                $element = $this->getInput($key, $field);
+                $element->value(( $attributeField ) ? $value[$attributeField] : $value);
+                $elements[] = $element;
             }
-
-            $input = $this->getInput($key, $value);
-
-
-            if( $this->hasRule($fieldName) )
-                $input->rules(
-                    $this->getRule($fieldName)
-                );
-
-            if(! is_array($data))
-                $data = (array)$data;
-
-            foreach ($data as $value) {
-                $input = clone $input;
-
-                $input->value($value);
-                $elements[] = $input;
-            }
-        }
+        });
 
         return array_merge($elements, $this->getAppliedPackages());
     }
@@ -163,66 +133,6 @@ class Eloquent extends Builder implements BuildAble {
         return $this->getSource()->casts[$field];
     }
 
-    /**
-     * Get relation data from source .
-     *
-     * @param $table
-     * @param $field
-     * @return array
-     */
-    protected function getRelationData($table, $field) {
-        if( in_array(str_plural($field), get_class_methods(get_class($this->getSource()))) ) {
-            $data = $this->getSource()->{$table}->toArray();
-        } else {
-            $source_table = $this->getSource()->getTable();
-            $foreign_field = $table.'.'.str_singular($source_table) . '_id';
-            $local_field   = $source_table.'.id';
-
-            \DB::connection()->setFetchMode(PDO::FETCH_ASSOC);
-            $data = \DB::table($source_table)
-                ->join($table, $local_field, '=', $foreign_field)
-                ->where($foreign_field, $this->getSource()->getAttribute('id'))
-                ->get();
-        }
-
-        return array_map(function($value) use($field) {
-            return $value[$field];
-        }, $data);
-    }
-
-    /**
-     * Get relation meta .
-     *
-     * @param $key
-     * @param $value
-     * @return array
-     */
-    protected function getRelationMeta($key, $value) {
-        if( is_numeric($key) )
-            $field = $value;
-        else
-            $field = $key;
-
-        $data = explode('.', $field);
-
-        return $data;
-    }
-
-    /**
-     * Check if key is relation .
-     *
-     * @param $key
-     * @param $value
-     * @return int
-     */
-    protected function isRelation($key, $value) {
-        if( is_numeric($key) )
-            $field = $value;
-        else
-            $field = $key;
-
-        return preg_match('/\\w+\\.{1}\\w+$/', $field);
-    }
 
 
     /**
