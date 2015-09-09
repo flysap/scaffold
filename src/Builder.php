@@ -5,6 +5,7 @@ namespace Flysap\Scaffold;
 use DataExporter\DriverAssets\Eloquent\Exportable;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
+use Eloquent\Translatable\Translatable;
 use Laravel\Meta\Eloquent\MetaSeoable;
 use Localization as Locale;
 use Laravel\Meta;
@@ -111,6 +112,26 @@ abstract class Builder {
                 'label' => 'Upload images',
                 'name'  => 'images[]',
             ]);
+        }
+
+        /**
+         * If source can be translated
+         */
+        if( $source instanceof Translatable ) {
+            $locales = Locale\get_locales();
+
+            foreach($locales as $locale => $attributes) {
+                $translation = $source->translate($locale);
+
+                foreach($source->translatedAttributes() as $attribute) {
+                    $elements[]  = FormBuilder\get_element('text', [
+                        'group' => 'translations',
+                        'label' => ucfirst($attribute) . ' ' . $locale,
+                        'value' => $translation[$attribute],
+                        'name'  => $locale . '['.$attribute.']',
+                    ]);
+                }
+            }
         }
 
         /** if Metaable than can have meta attributes */
