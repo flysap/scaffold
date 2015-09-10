@@ -118,7 +118,6 @@ class Eloquent extends Builder implements BuildAble {
     }
 
 
-
     /**
      * Get input type as object .
      *

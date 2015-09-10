@@ -56,6 +56,17 @@ abstract class Builder {
     public function getAppliedPackages(array $elements = array()) {
         $source   = $this->getSource();
 
+        /** Inject additional tabs if there is .. */
+        if( method_exists($source, 'inject') ) {
+            $injecting = $source->{'inject'}();
+
+            $injecting = !is_array($injecting) ? (array)$injecting : $injecting;
+
+            array_walk($injecting, function($content, $group) use(& $elements, $source) {
+                $elements[] = FormBuilder\element_custom( $content instanceof \Closure ? $content($source) : $content, ['group' => $group]);
+            });
+        }
+
         /**
          * If Metaable than have meta
          *
