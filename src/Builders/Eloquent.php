@@ -5,7 +5,6 @@ namespace Flysap\Scaffold\Builders;
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
 use Flysap\FormBuilder;
-use Illuminate\Support\Collection;
 use Laravel\Meta;
 use Localization as Locale;
 use DataExporter;
@@ -33,35 +32,154 @@ class Eloquent extends Builder implements BuildAble {
      * @return array
      */
     public function getElements() {
-        $fields   = $this->getSource()->scaffoldEditable();
         $elements = [];
 
-        array_walk($fields, function($field, $key) use(& $elements) {
-            $attribute = is_numeric($key) ? $field : $key;
+        $elements = $this->processFields($elements);
+        $elements = $this->processRelations($elements);
+        $elements = $this->getAppliedPackages($elements);
 
-            /** If field is relation */
-            $relationField = false;
-            if( preg_match('/\\w+\\.{1}\\w+$/', $attribute) )
-                list($attribute, $relationField) = explode('.', $attribute);
+        return $elements;
+    }
 
-            $values = function($attribute) {
-                $result = $this->getSource()
-                    ->getAttribute($attribute);
 
-                if(! $result instanceof Collection)
-                    $result = collect([$result]);
+    /**
+     * Check if source has relations .
+     *
+     * @return bool
+     */
+    protected function hasRelations() {
+        return array_key_exists('relationShips', get_class_vars(get_class($this->getSource())));
+    }
 
-                return $result;
-            };
+    /**
+     * Get all the relations .
+     *
+     * @return mixed
+     */
+    protected function getRelations() {
+        if( $this->hasRelations() )
+            return $this->getSource()->relationShips;
 
-            foreach ($values($attribute) as $value) {
-                $element = $this->getInput($key, $field);
-                $element->value(( $relationField ) ? $value[$relationField] : $value);
-                $elements[] = $element;
+        return array();
+    }
+
+    /**
+     * Process all the relations .
+     * @param array $elements
+     * @return array
+     */
+    protected function processRelations($elements = array()) {
+        $relations = $this->getRelations();
+
+        array_walk($relations, function($attributes, $relation) use(& $elements) {
+            if(! is_array($attributes)) {
+                $relation = $attributes; $attributes = [];
+            }
+
+            /**
+             * Get the field for current relations, if there is not field in attributes we will try automatically to
+             *  detect the field based on table singular mode name .
+             */
+            $field = isset($attributes['field']) ? array_pull($attributes, 'field') : str_singular($relation);
+
+            if(! is_array($field))
+                $field = (array)$field;
+
+            if( ! method_exists($this->getSource(), $relation) )
+                return false;
+
+            $query = $this->getSource()->{$relation}();
+
+            /**
+             * If there persist custom query to extract relation data will be applied that query .
+             */
+            if( isset($attributes['query']) )
+                if( ($queryClosure = $attributes['query']) && $queryClosure instanceof \Closure )
+                    $query = $queryClosure($query);
+
+            $items = $query->get();
+
+            foreach($items as $item) {
+
+                /**
+                 * If there is value we have to show the id to add possibility to edit that value .
+                 */
+                $hidden = FormBuilder\get_element('hidden', $attributes + [
+                    'value' => $item->{$item->getKeyName()}
+                ]);
+
+                array_push($elements, $hidden);
+
+                /**
+                 * Go through values and extract them .
+                 *
+                 */
+                foreach($field as $value => $valueAttr) {
+
+                    if(! is_array($valueAttr)) {
+                        $value = $valueAttr; $valueAttr = [];
+                    }
+
+                    if(! isset($valueAttr['label']))
+                        $valueAttr['label'] = ucfirst($value);
+
+                    if( $valueAttr instanceof \Closure )
+                        $valueAttr = $valueAttr();
+                    else
+                        $valueAttr = array_merge($valueAttr, $attributes);
+
+                    $element = $this->getElementInstance(
+                          $value, $valueAttr, $item
+                    );
+
+                    array_push($elements, $element);
+                }
+
             }
         });
 
-        return $this->getAppliedPackages($elements);
+        return $elements;
+    }
+
+
+    /**
+     * Check if has fields .
+     *
+     * @return int
+     */
+    protected function hasFields() {
+        return count( $this->getSource()->scaffoldEditable() );
+    }
+
+    /**
+     * Get fields .
+     *
+     * @return mixed
+     */
+    protected function getFields() {
+        return $this->getSource()->scaffoldEditable();
+    }
+
+    /**
+     * Process fields .
+     *
+     * @param array $elements
+     * @return array
+     */
+    protected function processFields($elements = array()) {
+        $fields = $this->getFields();
+
+        array_walk($fields, function($attributes, $key) use(& $elements) {
+            if(! is_array($attributes)) {
+                $key = $attributes; $attributes = [];
+            }
+
+            $element    = $this->getElementInstance($key, $attributes);
+
+            array_push($elements, $element);
+        });
+
+        return $elements;
     }
 
 
@@ -80,7 +198,7 @@ class Eloquent extends Builder implements BuildAble {
      * @param $attribute
      * @return null
      */
-    public function getRule($attribute) {
+    protected function getRule($attribute) {
         return $this->hasRule($attribute) ? $this->getRules()[$attribute] : null;
     }
 
@@ -101,53 +219,58 @@ class Eloquent extends Builder implements BuildAble {
      * Get for type in casts .
      *
      * @param $attribute
+     * @param null $source
      * @return mixed
      */
-    protected function getCasts($attribute) {
-        return $this->hasCasts($attribute) ? $this->getSource()->casts[$attribute] : null;
+    protected function getCasts($attribute, $source = null) {
+        if(is_null($source))
+            $source = $this->getSource();
+
+        return $this->hasCasts($attribute) ? $source->casts[$attribute] : null;
     }
 
     /**
      * Check if field in casts exits .
      *
      * @param $attribute
+     * @param null $source
      * @return bool
      */
-    protected function hasCasts($attribute) {
-        return isset($this->getSource()->casts[$attribute]);
+    protected function hasCasts($attribute, $source = null) {
+        if(is_null($source))
+            $source = $this->getSource();
+
+        return isset($source->casts[$attribute]);
     }
 
 
     /**
-     * Get input type as object .
+     * Get element instance .
      *
      * @param $key
-     * @param $value
+     * @param $attributes
+     * @param null $source
      * @return mixed
      * @throws FormBuilder\ElementException
      */
-    protected function getInput($key, $value) {
-        $input      = null;
-        $attributes = [];
+    public function getElementInstance($key, $attributes, $source = null) {
+        if( is_null($source) )
+            $source = $this->getSource();
 
-        if( is_numeric($key) ) {
-            /** If key is numeric i have to found the type of key in casts or set default type . */
-            if( $this->hasCasts($value) )
-                $input = $this->getCasts($value);
-            else
-                $input = self::DEFAULT_TYPE_ELEMENT;
-        } else {
-            $input = is_array($value) ? $value['type'] : $value;
+        if( isset($attributes['type']) )
+            $type = $attributes['type'];
+        elseif( $this->hasCasts($key, $source) )
+            $type = $this->getCasts($key, $source);
+        else
+            $type = self::DEFAULT_TYPE_ELEMENT;
 
-            $attributes = is_array($value) ? $value : [];
+        if(! isset($attributes['value'])) {
+            $attributes['value'] = $source->{$key};
         }
 
-        if( is_numeric($key) )
-            $attributes['name'] = $value;
-        else
+        if(! isset($attributes['name']))
             $attributes['name'] = $key;
 
-        return FormBuilder\get_element($input, $attributes);
+        return FormBuilder\get_element($type, $attributes);
     }
-
 }
