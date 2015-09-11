@@ -48,7 +48,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return bool
      */
     protected function hasRelations() {
-        return array_key_exists('relationShips', get_class_vars(get_class($this->getSource())));
+        return array_key_exists('relation', get_class_vars(get_class($this->getSource())));
     }
 
     /**
@@ -58,7 +58,7 @@ class Eloquent extends Builder implements BuildAble {
      */
     protected function getRelations() {
         if( $this->hasRelations() )
-            return $this->getSource()->relationShips;
+            return $this->getSource()->relation;
 
         return array();
     }
@@ -80,7 +80,7 @@ class Eloquent extends Builder implements BuildAble {
              * Get the field for current relations, if there is not field in attributes we will try automatically to
              *  detect the field based on table singular mode name .
              */
-            $field = isset($attributes['field']) ? array_pull($attributes, 'field') : str_singular($relation);
+            $field = isset($attributes['fields']) ? array_pull($attributes, 'fields') : str_singular($relation);
 
             if(! is_array($field))
                 $field = (array)$field;
@@ -99,7 +99,7 @@ class Eloquent extends Builder implements BuildAble {
 
             $items = $query->get();
 
-            foreach($items as $item) {
+            foreach($items as $key => $item) {
 
                 /**
                  * If there is value we have to show the id to add possibility to edit that value .
@@ -107,6 +107,10 @@ class Eloquent extends Builder implements BuildAble {
                 $hidden = FormBuilder\get_element('hidden', $attributes + [
                     'value' => $item->{$item->getKeyName()}
                 ]);
+
+                $hidden->name(
+                    $relation .'['.$key.']'.'['.$item->getKeyName().']'
+                );
 
                 array_push($elements, $hidden);
 
@@ -130,6 +134,10 @@ class Eloquent extends Builder implements BuildAble {
 
                     $element = $this->getElementInstance(
                           $value, $valueAttr, $item
+                    );
+
+                    $element->name(
+                        $relation .'['.$key.']'.'['.$value.']'
                     );
 
                     array_push($elements, $element);
@@ -170,7 +178,9 @@ class Eloquent extends Builder implements BuildAble {
         $fields = $this->getFields();
 
         array_walk($fields, function($attributes, $key) use(& $elements) {
-            if(! is_array($attributes)) {
+            if( is_string($attributes) ) {
+                $attributes = ['type' => $attributes];
+            } elseif(! is_array($attributes)) {
                 $key = $attributes; $attributes = [];
             }
 
@@ -265,7 +275,8 @@ class Eloquent extends Builder implements BuildAble {
             $type = self::DEFAULT_TYPE_ELEMENT;
 
         if(! isset($attributes['value'])) {
-            $attributes['value'] = $source->{$key};
+            if( array_key_exists($key, $source->getAttributes()) )
+                $attributes['value'] = $source->{$key};
         }
 
         if(! isset($attributes['name']))
