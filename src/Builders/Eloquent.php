@@ -112,7 +112,20 @@ class Eloquent extends Builder implements BuildAble {
                     $relation .'['.$key.']'.'['.$item->getKeyName().']'
                 );
 
+                /**
+                 * Adding sync element .
+                 *
+                 */
+                $sync = FormBuilder\get_element('hidden', $attributes + [
+                    'value' => 1
+                ]);
+
+                $sync->name(
+                    $relation .'['.$key.']'.'[sync]'
+                );
+
                 array_push($elements, $hidden);
+                array_push($elements, $sync);
 
                 /**
                  * Go through values and extract them .
@@ -126,6 +139,9 @@ class Eloquent extends Builder implements BuildAble {
 
                     if(! isset($valueAttr['label']))
                         $valueAttr['label'] = ucfirst($value);
+
+                    if(! isset($valueAttr['group']))
+                        $valueAttr['group'] = strtolower($value);
 
                     if( $valueAttr instanceof \Closure )
                         $valueAttr = $valueAttr();
