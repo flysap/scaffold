@@ -141,7 +141,7 @@ class Eloquent extends Builder implements BuildAble {
                         $valueAttr['label'] = ucfirst($value);
 
                     if(! isset($valueAttr['group']))
-                        $valueAttr['group'] = strtolower($value);
+                        $valueAttr['group'] = strtolower($relation);
 
                     if( $valueAttr instanceof \Closure )
                         $valueAttr = $valueAttr();
@@ -252,7 +252,7 @@ class Eloquent extends Builder implements BuildAble {
         if(is_null($source))
             $source = $this->getSource();
 
-        return $this->hasCasts($attribute) ? $source->casts[$attribute] : null;
+        return $this->hasCasts($attribute, $source) ? $source->casts[$attribute] : null;
     }
 
     /**
