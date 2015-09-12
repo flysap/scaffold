@@ -17,6 +17,28 @@ class ScaffoldService {
         $request = Input::all();
 
         $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
+
+        $scopes = (new Scopes)
+            ->addScopes(
+                $eloquent->scopes()
+            );
+
+        /**
+         * If scope was sent that filter current table by current scope .
+         */
+        if( isset($request['scope']) ) {
+            if( $scopes->hasScope($request['scope']) ) {
+                $scope = $scopes->getScope($request['scope']);
+
+                if( isset($scope['query']) ) {
+                    $query = $scope['query'];
+
+                    if( $query instanceof \Closure )
+                        $table->filter($query);
+                }
+            }
+        }
+
         $table->addColumn(['closure' => function($value, $attributes) use($model) {
             $elements = $attributes['elements'];
 
@@ -37,7 +59,7 @@ DOC;
                 ->download($data);
         }
 
-        return view('scaffold::scaffold.lists', compact('table'));
+        return view('scaffold::scaffold.lists', compact('table', 'scopes'));
     }
 
     public function create($model) {
@@ -71,6 +93,7 @@ DOC;
                 $eloquent->upload($params['images']);
 
             $eloquent->fill($params)
+                ->refresh($params)
                 ->save();
 
             return redirect()
