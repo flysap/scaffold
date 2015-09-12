@@ -18,7 +18,6 @@
         {!!Flysap\FormBuilder\open_form($form)!!}
             <div class="row">
             <div class="col-md-12">
-
                 @if( Flysap\FormBuilder\has_groups($form) )
                     <!-- Custom Tabs -->
                     <div class="nav-tabs-custom">

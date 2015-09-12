@@ -24,6 +24,7 @@
                     </div><!-- /.box-header -->
                     <div class="box-body">
                         {!! \Flysap\TableManager\render_filter_form($table) !!}
+                        {!! $scopes !!}
                         {!! $table !!}
                         {!! \Flysap\TableManager\render_pagination($table) !!}
                     </div><!-- /.box-body -->
