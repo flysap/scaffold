@@ -46,7 +46,17 @@ class Exporters {
      * @return null
      */
     public function getExporter($key) {
-        return isset($this->exporters[$key]) ? $this->exporters[$key] : null;
+        return $this->hasExporter($key) ? $this->exporters[$key] : null;
+    }
+
+    /**
+     * Check if has registered exporter .
+     *
+     * @param $key
+     * @return bool
+     */
+    public function hasExporter($key) {
+        return isset($this->exporters[$key]) ? true : false;
     }
 
 
