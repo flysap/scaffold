@@ -3,6 +3,7 @@
 namespace Flysap\Scaffold;
 
 use Flysap\Support\Traits\ElementPermissions;
+use Illuminate\Database\Eloquent\Model;
 
 class Scopes {
 
@@ -12,6 +13,11 @@ class Scopes {
      * @var
      */
     protected $scopes = [];
+
+    /**
+     * @var
+     */
+    protected $source;
 
     public function __construct() {
         $this->setScopes([
@@ -76,34 +82,103 @@ class Scopes {
 
 
     /**
+     * Set source .
+     *
+     * @param $source
+     * @return $this
+     */
+    public function setSource(Model $source) {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    /**
+     * Get source .
+     *
+     * @return mixed
+     */
+    public function getSource() {
+        return $this->source;
+    }
+
+    /**
+     * Run callback .
+     *
+     * @param callable $callback
+     * @return mixed
+     */
+    public function runCallback(\Closure $callback) {
+        return $callback($this->source->query());
+    }
+
+
+    /**
      * Render scopes .
      * @param null $scope
      * @return string
      */
     public function render($scope = null) {
-        $html = '<ul>';
+        $html = is_null($scope) ? '<ul>' : '';
 
-        $scopes = is_null($scope) ? $this->getScopes() : [$scope];
+        $scopes = is_null($scope) ? $this->getScopes() : [$scope => $this->getScope($scope)];
 
         array_walk($scopes, function($attributes, $scope) use(& $html) {
+
+            /** @var Set permissions  $security */
             $security = clone $this;
             $security->roles(isset($attributes['roles']) ? $attributes['roles'] : []);
             $security->permissions(isset($attributes['permissions']) ? $attributes['permission'] : []);
 
+
+            /** Set label . */
             if(! isset($attributes['label']))
                 $attributes['label'] = $scope;
 
             $label = ucfirst($attributes['label']);
 
-            if( $security->isAllowed() ) {
-                $html .= <<<DOC
-<li><a href="?scope=$scope">$label</a></li>
-DOC;
-;
+
+            /** Get count for current scope . */
+            if( isset($attributes['query']) && $attributes['query'] instanceof \Closure )
+                $query = $this->runCallback(
+                    $attributes['query']
+                );
+            else
+                $query = $this->getSource();
+
+            /**
+             * Check if we extending another scope .
+             *
+             */
+            if( isset($attributes['extend']) ) {
+                if( $this->hasScope($attributes['extend']) ) {
+                    $extended = $this->getScope($attributes['extend']);
+
+                    #if( isset($extended['query']) && $extended['query'] instanceof \Closure )
+                        #$query = $extended['query']($query);
+                }
             }
+
+            $count = $query->count();
+
+
+            $vars = ['scope' => $scope, 'label' => $label, 'count' => $count];
+
+
+            /** @var Set template .. $template */
+            $template = '<li><a href="?scope=%scope%">%label% - (%count%)</a></li>';
+            if( isset($attributes['template']) )
+                $template = $attributes['template'];
+
+            foreach ($vars as $var => $value)
+                $template = str_replace('%'.$var.'%', $value, $template);
+
+
+            if( $security->isAllowed() )
+                $html .= $template;
         });
 
-        $html .= '</ul>';
+        $html .= is_null($scope) ? '</ul>' : '';
 
         return $html;
     }
