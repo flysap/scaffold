@@ -116,10 +116,11 @@ class Scopes {
     /**
      * Render scopes .
      * @param null $scope
+     * @param string $class
      * @return string
      */
-    public function render($scope = null) {
-        $html = is_null($scope) ? '<ul>' : '';
+    public function render($scope = null, $class = '') {
+        $html = is_null($scope) ? '<ul class="'.$class.'">' : '';
 
         $scopes = is_null($scope) ? $this->getScopes() : [$scope => $this->getScope($scope)];
 

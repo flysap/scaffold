@@ -14,23 +14,27 @@
 
     <!-- Main content -->
     <section class="content">
-
         <div class="row">
-            <div class="col-xs-12">
-
+            <div class="col-xs-9">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">Data Table With Full Features</h3>
+                        <h3 class="box-title">Responsive Hover Table</h3>
+                        <div class="box-tools">
+                            {!! $scopes->render(null, 'pagination pagination-sm no-margin pull-left') !!}
+                        </div>
                     </div><!-- /.box-header -->
-                    <div class="box-body">
-                        {!! \Flysap\TableManager\render_filter_form($table) !!}
-                        {!! $scopes !!}
+                    <div class="box-body table-responsive no-padding">
                         {!! $table !!}
                         {!! \Flysap\TableManager\render_pagination($table) !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
+
+            </div><!-- /.col -->
+            <div class="col-xs-3">
+                <div class="box">
+                {!! \Flysap\TableManager\render_filter_form($table) !!}
+                </div>
             </div><!-- /.col -->
         </div><!-- /.row -->
-
     </section><!-- /.content -->
 @endsection

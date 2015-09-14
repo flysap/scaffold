@@ -16,12 +16,12 @@ class ScaffoldService {
 
         $request = Input::all();
 
-        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-bordered table-striped dataTable']);
+        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-hover']);
 
         $scopes = (new Scopes)
             ->addScopes(
                 $eloquent->scopes()
-            );
+            )->setSource($eloquent);
 
         /**
          * If scope was sent that filter current table by current scope .
