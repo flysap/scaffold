@@ -23,6 +23,15 @@ class ScaffoldService {
                 $eloquent->scopes()
             )->setSource($eloquent);
 
+
+        /** @var Get exporters . $exporters */
+        $exporters = config('scaffold.exporters');
+        if( in_array('exporters', get_class_methods(get_class($eloquent))) )
+            $exporters = call_user_func([$eloquent, 'exporters']);
+
+        $exporters = (new Exporters)
+            ->setExporters($exporters);
+
         /**
          * If scope was sent that filter current table by current scope .
          */
@@ -59,7 +68,7 @@ DOC;
                 ->download($data);
         }
 
-        return view('scaffold::scaffold.lists', compact('table', 'scopes'));
+        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters'));
     }
 
     public function create($model) {

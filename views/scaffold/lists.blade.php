@@ -24,15 +24,17 @@
                         </div>
                     </div><!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
-                        {!! $table !!}
-                        {!! \Flysap\TableManager\render_pagination($table) !!}
+                        {!! $table->render() !!}
+                        {!! Flysap\TableManager\render_pagination($table) !!}
+
+                        {{_('Download')}} : {!! $exporters->render() !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
 
             </div><!-- /.col -->
             <div class="col-xs-3">
                 <div class="box">
-                {!! \Flysap\TableManager\render_filter_form($table) !!}
+                {!! Flysap\TableManager\render_filter_form($table) !!}
                 </div>
             </div><!-- /.col -->
         </div><!-- /.row -->

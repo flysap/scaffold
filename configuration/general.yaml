@@ -2,3 +2,10 @@
 model_namespaces:
   - storage/modules
   - modules
+
+# which exporters show .
+exporters:
+  csv:
+   label: Csv
+  xls:
+   label: Xls
