@@ -8,6 +8,7 @@ use Flysap\Support;
 use Illuminate\Http\Request;
 use Modules;
 use Input;
+use DataExporter;
 
 class ScaffoldService {
 
@@ -22,15 +23,6 @@ class ScaffoldService {
             ->addScopes(
                 $eloquent->scopes()
             )->setSource($eloquent);
-
-
-        /** @var Get exporters . $exporters */
-        $exporters = config('scaffold.exporters');
-        if( in_array('exporters', get_class_methods(get_class($eloquent))) )
-            $exporters = call_user_func([$eloquent, 'exporters']);
-
-        $exporters = (new Exporters)
-            ->setExporters($exporters);
 
         /**
          * If scope was sent that filter current table by current scope .
@@ -48,6 +40,41 @@ class ScaffoldService {
             }
         }
 
+
+        /** @var Get exporters . $exporters */
+        $exporters = config('scaffold.exporters');
+        if( in_array('exporters', get_class_methods(get_class($eloquent))) )
+            $exporters = call_user_func([$eloquent, 'exporters']);
+
+        $exporters = (new Exporters)
+            ->setExporters($exporters);
+
+
+        /** Export if . */
+        if( isset($request['export']) ) {
+            $exporter = $request['export'];
+
+            if( ! $exporters->hasExporter($exporter) )
+                return redirect()
+                    ->back();
+
+            $availableExporters = DataExporter\get_exporters();
+
+            iF(! array_key_exists($exporter, $availableExporters))
+                return redirect()
+                    ->back();
+
+            $driver = (new DataExporter\Drivers\Collection(
+                $table->getDriver()->getSource()->get()
+                    ->toArray()
+            ));
+
+            return DataExporter\download(
+                $exporter,
+                $driver
+            );
+        }
+
         $table->addColumn(['closure' => function($value, $attributes) use($model) {
             $elements = $attributes['elements'];
 
@@ -60,13 +87,6 @@ class ScaffoldService {
 DOC;
 ;
         }], 'action');
-
-        if( isset($request['download']) ) {
-            $data = $table->convertTo($request['download']);
-
-            return response()
-                ->download($data);
-        }
 
         return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters'));
     }
