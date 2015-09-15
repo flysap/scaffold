@@ -32,7 +32,7 @@ class Scopes {
      * @param array $scopes
      * @return $this
      */
-    public function addScopes(array $scopes) {
+    public function addScopes(array $scopes = []) {
         $this->scopes = array_merge($scopes, $this->scopes);
 
         return $this;
