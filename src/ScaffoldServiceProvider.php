@@ -2,11 +2,8 @@
 
 namespace Flysap\Scaffold;
 
-use Flysap\Scaffold\Contracts\ScaffoldServiceContract;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Symfony\Component\Yaml\Yaml;
-use Illuminate\Config\Repository;
+use Flysap\Support;
 
 class ScaffoldServiceProvider extends Serviceprovider {
 
@@ -30,12 +27,6 @@ class ScaffoldServiceProvider extends Serviceprovider {
         });
 
         $this->app->singleton('table-info', TableInfo::class);
-
-        $this->app->singleton('form-builder', function() {
-            return new FormBuilder(
-                new Repository(config('form-builder'))
-            );
-        });
     }
 
     /**
@@ -57,13 +48,9 @@ class ScaffoldServiceProvider extends Serviceprovider {
      * @return $this
      */
     protected function loadConfiguration() {
-        $array = Yaml::parse(file_get_contents(
-            __DIR__ . '/../configuration/general.yaml'
-        ));
-
-        $config = $this->app['config']->get('scaffold', []);
-
-        $this->app['config']->set('scaffold', array_merge($array, $config));
+        Support\set_config_from_yaml(
+            __DIR__ . '/../configuration/general.yaml' , 'scaffold'
+        );
 
         return $this;
     }
