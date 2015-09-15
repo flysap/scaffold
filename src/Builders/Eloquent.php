@@ -172,7 +172,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return int
      */
     protected function hasFields() {
-        return count( $this->getSource()->scaffoldEditable() );
+        return count( $this->getSource()->skyEdit() );
     }
 
     /**
@@ -181,7 +181,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return mixed
      */
     protected function getFields() {
-        return $this->getSource()->scaffoldEditable();
+        return $this->getSource()->skyEdit();
     }
 
     /**

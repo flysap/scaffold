@@ -14,7 +14,7 @@ trait ScaffoldTrait {
      *
      * @return array
      */
-    public function scaffoldEditable() {
+    public function skyEdit() {
         $columns = $this->columnsTable();
 
         if( isset($this->fillable) )
@@ -30,7 +30,7 @@ trait ScaffoldTrait {
      *
      * @return array|mixed
      */
-    public function scaffoldFilter() {
+    public function skyFilter() {
         $columns = $this->columnsTable();
 
         unset($columns['id']);
@@ -46,7 +46,7 @@ trait ScaffoldTrait {
      *
      * @return array|mixed
      */
-    public function scaffoldListing() {
+    public function skyShow() {
         $columns = $this->columnsTable();
 
         if( isset($this->list) )

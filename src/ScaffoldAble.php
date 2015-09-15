@@ -4,9 +4,24 @@ namespace Flysap\Scaffold;
 
 interface ScaffoldAble {
 
-    public function scaffoldEditable();
+    /**
+     * Return an array with fields needs to be editable .
+     *
+     * @return mixed
+     */
+    public function skyEdit();
 
-    public function scaffoldFilter();
+    /**
+     * Return an array with fields needs to be filtered .
+     *
+     * @return mixed
+     */
+    public function skyFilter();
 
-    public function scaffoldListing();
+    /**
+     * Return an array with fields is needed to be listed .
+     *
+     * @return mixed
+     */
+    public function skyShow();
 }
