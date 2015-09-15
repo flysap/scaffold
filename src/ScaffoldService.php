@@ -38,17 +38,22 @@ class ScaffoldService {
                         $table->filter($query);
                 }
             }
-        } else {
-            $table->filter(function($query) use($request, $eloquent) {
-                $availableFilters = $eloquent->scaffoldFilter();
-
-                foreach ($request as $key => $value)
-                    if( !empty($value) && array_key_exists($key, $availableFilters) )
-                        $query = $query->where($key, 'LIKE', '%'.$value.'%');
-
-                return $query;
-            });
         }
+
+        /**
+         * Adding table filter .
+         *
+         */
+        $table->filter(function($query) use($request, $table) {
+            $eloquent         = $table->getDriver()->getSource()->getModel();
+            $availableFilters = $eloquent->skyFilter();
+
+            foreach ($request as $key => $value)
+                if( !empty($value) && array_key_exists($key, $availableFilters) )
+                    $query = $query->where($key, 'LIKE', '%'.$value.'%');
+
+            return $query;
+        });
 
 
         /** @var Get exporters . $exporters */
@@ -70,7 +75,7 @@ class ScaffoldService {
 
             $availableExporters = DataExporter\get_exporters();
 
-            iF(! array_key_exists($exporter, $availableExporters))
+            if(! array_key_exists($exporter, $availableExporters))
                 return redirect()
                     ->back();
 
