@@ -25,8 +25,7 @@
                     </div><!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
                         {!! $table->render() !!}
-                        {!! Flysap\TableManager\render_pagination($table) !!}
-
+                        {!! Flysap\TableManager\render_pagination($table, null, ['scope' => request('scope')]) !!}
                         {{_('Download')}} : {!! $exporters->render() !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->

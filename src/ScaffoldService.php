@@ -17,11 +17,11 @@ class ScaffoldService {
 
         $params = Input::all();
 
-        $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-hover']);
+        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover']);
 
         $scopes = (new Scopes)
             ->addScopes(
-                $eloquent->scopes()
+                array_key_exists('scopes', get_class_methods(get_class($eloquent))) ? $eloquent->scopes() : []
             )->setSource($eloquent);
 
         /**
@@ -73,6 +73,7 @@ class ScaffoldService {
         });
 
 
+
         /** @var Get exporters . $exporters */
         $exporters = config('scaffold.exporters');
         if( in_array('exporters', get_class_methods(get_class($eloquent))) )
@@ -106,6 +107,7 @@ class ScaffoldService {
                 $driver
             );
         }
+
 
         $table->addColumn(['closure' => function($value, $attributes) use($model) {
             $elements = $attributes['elements'];
