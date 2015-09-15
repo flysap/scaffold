@@ -15,7 +15,7 @@ class ScaffoldService {
     public function lists($model) {
         $eloquent = $this->getModel($model);
 
-        $request = Input::all();
+        $params = Input::all();
 
         $table = TableManager\table('Eloquent', $eloquent, ['class' => 'table table-hover']);
 
@@ -27,9 +27,9 @@ class ScaffoldService {
         /**
          * If scope was sent that filter current table by current scope .
          */
-        if( isset($request['scope']) ) {
-            if( $scopes->hasScope($request['scope']) ) {
-                $scope = $scopes->getScope($request['scope']);
+        if( isset($params['scope']) ) {
+            if( $scopes->hasScope($params['scope']) ) {
+                $scope = $scopes->getScope($params['scope']);
 
                 if( isset($scope['query']) ) {
                     $query = $scope['query'];
@@ -44,13 +44,30 @@ class ScaffoldService {
          * Adding table filter .
          *
          */
-        $table->filter(function($query) use($request, $table) {
+        $table->filter(function($query) use($params, $table) {
             $eloquent         = $table->getDriver()->getSource()->getModel();
             $availableFilters = $eloquent->skyFilter();
 
-            foreach ($request as $key => $value)
-                if( !empty($value) && array_key_exists($key, $availableFilters) )
-                    $query = $query->where($key, 'LIKE', '%'.$value.'%');
+            foreach ($availableFilters as $key => $options) {
+                if( isset($params[$key]) && ( !empty($params[$key]) ) ) {
+
+                    $type = $options;
+                    if( is_array($options) )
+                        $type = $options['type'];
+
+                    /** If there is custom query than run it . */
+                    if( is_array($options) && isset($options['query']) && ( $options['query'] instanceof \Closure ) ) {
+                        $custom = $options['query'];
+
+                        $query = $custom($query, $params[$key]);
+                    } else {
+                        if( $type == 'select' || $type == 'checkbox' )
+                            $query = $query->where($key, $params[$key]);
+                        else
+                            $query = $query->where($key, 'LIKE', '%'.$params[$key].'%');
+                    }
+                }
+            }
 
             return $query;
         });
@@ -66,8 +83,8 @@ class ScaffoldService {
 
 
         /** Export if . */
-        if( isset($request['export']) ) {
-            $exporter = $request['export'];
+        if( isset($params['export']) ) {
+            $exporter = $params['export'];
 
             if( ! $exporters->hasExporter($exporter) )
                 return redirect()
@@ -159,9 +176,9 @@ DOC;
     /**
      * Custom requests .
      *
-     * @param Request $request
+     * @param Request $params
      */
-    public function custom(Request $request) {
+    public function custom(Request $params) {
         #@todo
     }
 
