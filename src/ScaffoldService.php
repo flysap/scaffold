@@ -38,6 +38,16 @@ class ScaffoldService {
                         $table->filter($query);
                 }
             }
+        } else {
+            $table->filter(function($query) use($request, $eloquent) {
+                $availableFilters = $eloquent->scaffoldFilter();
+
+                foreach ($request as $key => $value)
+                    if( !empty($value) && array_key_exists($key, $availableFilters) )
+                        $query = $query->where($key, 'LIKE', '%'.$value.'%');
+
+                return $query;
+            });
         }
 
 
