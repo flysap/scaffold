@@ -151,11 +151,13 @@ abstract class Builder {
 
             foreach ($meta as $value)
                 $elements[]  = FormBuilder\get_element('text', [
-                    'name'  => 'meta['.$value->key.']',
-                    'group' => 'meta',
-                    'value' => $value->value,
-                    'label' => ucfirst($value->key)
+                    'before' => '<a href="#" onclick="$(this).closest(\'div\').remove(); return false;">'._('Remove').'</a>',
+                    'name'   => 'meta['.$value->key.']',
+                    'group'  => 'meta',
+                    'value'  => $value->value,
+                    'label'  => ucfirst($value->key)
                 ]);
+
 
             $addMeta = FormBuilder\element_text(_('New meta'), [
                 'onChange' => "$(this).attr('name', 'meta['+$(this).val()+']')"
