@@ -3,8 +3,6 @@
         @include('scaffold::scaffold.elements.' . $element->getAttribute('type'))
     @else
         <div class="form-group">
-            <?php $label = $element->getAttribute('label') ?: $element->getAttribute('name'); ?>
-            <label>{{ucfirst($label)}}</label>
             {!!Flysap\FormBuilder\render_element($element, $form, ['class' => 'form-control'])!!}
         </div>
     @endif
