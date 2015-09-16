@@ -2,6 +2,7 @@
 
 namespace Flysap\Scaffold;
 
+use Cartalyst\Tags\TaggableInterface;
 use DataExporter\DriverAssets\Eloquent\Exportable;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
@@ -166,6 +167,28 @@ abstract class Builder {
             $elements[] = FormBuilder\element_custom($addMeta->render(), [
                 'group' => 'meta'
             ]);
+        }
+
+        /**
+         * If source can be tagged
+         */
+        if( $source instanceof TaggableInterface ) {
+            $tags = $source->tags;
+
+            foreach($tags as $tag)
+                $elements[]  = FormBuilder\get_element('text', [
+                    'before' => '<a href="#" onclick="$(this).closest(\'div\').remove(); return false;">'._('Remove').'</a>',
+                    'name'   => 'tags[]',
+                    'group'  => 'tags',
+                    'value'  => $tag->getAttribute('name'),
+                ]);
+
+            $addTag = FormBuilder\element_text(_('New tags'), [
+                'name'  => 'tags[]',
+                'group' => 'tags'
+            ]);
+
+            $elements[] = $addTag;
         }
 
         return $elements;

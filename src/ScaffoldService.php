@@ -2,6 +2,10 @@
 
 namespace Flysap\Scaffold;
 
+use Cartalyst\Tags\TaggableInterface;
+use Eloquent\ImageAble\ImageAble;
+use Flysap\ScaffoldGenerator\Packs\MetaAble;
+use Flysap\ScaffoldGenerator\Packs\SeoAble;
 use Flysap\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
@@ -21,7 +25,7 @@ class ScaffoldService {
 
         $scopes = (new Scopes)
             ->addScopes(
-                array_key_exists('scopes', get_class_methods(get_class($eloquent))) ? $eloquent->scopes() : []
+                in_array('scopes', get_class_methods(get_class($eloquent))) ? $eloquent->scopes() : []
             )->setSource($eloquent);
 
         /**
@@ -162,13 +166,23 @@ DOC;
             #if( ! $form->isValid($params) )
                 #throw new ScaffoldException(_('Validation failed'));
 
-            $eloquent->syncMeta(isset($params['meta']) ? $params['meta'] : []);
+            if( $eloquent instanceof MetaAble )
+                $eloquent->syncMeta(isset($params['meta']) ? $params['meta'] : []);
 
-            if( isset($params['seo']) )
-                $eloquent->storeSeo($params['seo']);
+            if( $eloquent instanceof SeoAble ) {
+                if( isset($params['seo']) )
+                    $eloquent->storeSeo($params['seo']);
+            }
 
-            if( isset($params['images']) )
-                $eloquent->upload($params['images']);
+            if( $eloquent instanceof ImageAble ) {
+                if( isset($params['images']) )
+                    $eloquent->upload($params['images']);
+            }
+
+            if( $eloquent instanceof TaggableInterface ) {
+                if( isset($params['tags']) )
+                    $eloquent->setTags($params['tags']);
+            }
 
             $eloquent->fill($params)
                 ->refresh($params)
