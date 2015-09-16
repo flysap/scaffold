@@ -19,6 +19,11 @@ Route::group(['prefix' => 'scaffold', 'as' => 'scaffold::'], function() {
             ->lists($file);
     }])->where('eloquent_path', "^([a-z\\/]+)");
 
+    Route::match(['post', 'get'], '{eloquent_path}/create', ['as' => 'create', function($file) {
+        return app('scaffold')
+            ->create($file);
+    }])->where(['eloquent_path' => "^([a-z\\/]+)"]);
+
     Route::match(['post', 'get'], '{eloquent_path}/{id}/edit', ['as' => 'edit', function($file, $id) {
         return app('scaffold')
             ->update($file, $id);
