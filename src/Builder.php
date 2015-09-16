@@ -157,7 +157,6 @@ abstract class Builder {
                     'label' => ucfirst($value->key)
                 ]);
             }
-
         }
 
         return $elements;

@@ -200,6 +200,9 @@ class Eloquent extends Builder implements BuildAble {
                 $key = $attributes; $attributes = [];
             }
 
+            if(! isset($attributes['label']))
+                $attributes['label'] = ucfirst($key);
+
             $element    = $this->getElementInstance($key, $attributes);
 
             array_push($elements, $element);
