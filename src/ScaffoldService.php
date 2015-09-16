@@ -4,12 +4,12 @@ namespace Flysap\Scaffold;
 
 use Cartalyst\Tags\TaggableInterface;
 use Eloquent\ImageAble\ImageAble;
-use Flysap\ScaffoldGenerator\Packs\MetaAble;
-use Flysap\ScaffoldGenerator\Packs\SeoAble;
+use Eloquent\Meta\MetaAble;
 use Flysap\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
 use Illuminate\Http\Request;
+use Laravel\Meta\Eloquent\MetaSeoable;
 use Modules;
 use Input;
 use DataExporter;
@@ -125,7 +125,7 @@ DOC;
 ;
         }], 'action');
 
-        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters'));
+        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'model'));
     }
 
     public function create($model) {
@@ -169,7 +169,7 @@ DOC;
             if( $eloquent instanceof MetaAble )
                 $eloquent->syncMeta(isset($params['meta']) ? $params['meta'] : []);
 
-            if( $eloquent instanceof SeoAble ) {
+            if( $eloquent instanceof MetaSeoable ) {
                 if( isset($params['seo']) )
                     $eloquent->storeSeo($params['seo']);
             }
@@ -222,6 +222,8 @@ DOC;
      */
     private function getModel($file, $identificator = null) {
         $spaces = config('scaffold.model_namespaces');
+
+
         list($vendor, $user, $model) = explode('/', $file);
 
         foreach ($spaces as $space) {

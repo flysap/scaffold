@@ -33,6 +33,11 @@
             </div><!-- /.col -->
             <div class="col-xs-3">
                 <div class="box">
+                    <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}">
+                        {{_('New')}}
+                    </a>
+                </div>
+                <div class="box">
                 {!! Flysap\TableManager\render_filter_form($table) !!}
                 </div>
             </div><!-- /.col -->
