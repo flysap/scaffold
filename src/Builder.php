@@ -99,7 +99,7 @@ abstract class Builder {
                     'name'  => $exporter,
                     'group' => 'export',
                     'title' => 'Download in ' .ucfirst($exporter),
-                    'href'  => ucfirst($exporter)
+                    'href'  => '?export='. strtolower($exporter)
                 ]);
             }
         }
