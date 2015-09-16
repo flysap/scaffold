@@ -73,7 +73,6 @@ class ScaffoldService {
         });
 
 
-
         /** @var Get exporters . $exporters */
         $exporters = config('scaffold.exporters');
         if( in_array('exporters', get_class_methods(get_class($eloquent))) )
@@ -137,17 +136,33 @@ DOC;
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
+        $params = Input::all();
+
+        if( isset($params['export']) ) {
+            $availableExporters = DataExporter\get_exporters();
+
+            if(! array_key_exists($params['export'], $availableExporters))
+                return redirect()
+                    ->back();
+
+            $driver = (new DataExporter\Drivers\Collection(
+                $eloquent->toArray()
+            ));
+
+            return DataExporter\download(
+                $params['export'],
+                $driver
+            );
+        }
+
         $form = (new Eloquent($eloquent))
             ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '']);
 
         if( $_POST ) {
-            $params = Input::all();
-
             #if( ! $form->isValid($params) )
                 #throw new ScaffoldException(_('Validation failed'));
 
-            if( isset($params['meta']) )
-                $eloquent->syncMeta($params['meta']);
+            $eloquent->syncMeta(isset($params['meta']) ? $params['meta'] : []);
 
             if( isset($params['seo']) )
                 $eloquent->storeSeo($params['seo']);
