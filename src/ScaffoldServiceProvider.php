@@ -2,6 +2,7 @@
 
 namespace Flysap\Scaffold;
 
+use Flysap\TableManager\TableServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Flysap\Support;
 
@@ -14,6 +15,8 @@ class ScaffoldServiceProvider extends Serviceprovider {
         $this->loadRoutes()
             ->loadViews()
             ->loadConfiguration();
+
+        $this->registerMenu();
     }
 
     /**
@@ -27,6 +30,8 @@ class ScaffoldServiceProvider extends Serviceprovider {
         });
 
         $this->app->singleton('table-info', TableInfo::class);
+
+        $this->registerPackageServices();
     }
 
     /**
@@ -68,5 +73,33 @@ class ScaffoldServiceProvider extends Serviceprovider {
         ]);
 
         return $this;
+    }
+
+    /**
+     * Register menu .
+     *
+     */
+    protected function registerMenu() {
+        $namespaces = config('scaffold.model_namespaces');
+
+        $menuManager = app('menu-manager');
+
+        array_walk($namespaces, function($namespace) use($menuManager) {
+            $menuManager->addNamespace($namespace, false);
+        });
+    }
+
+    /**
+     * Register service provider dependencies .
+     *
+     */
+    protected function registerPackageServices() {
+        $providers = [
+            TableServiceProvider::class,
+        ];
+
+        array_walk($providers, function($provider) {
+            app()->register($provider);
+        });
     }
 }
