@@ -17,6 +17,12 @@ class ScaffoldServiceProvider extends Serviceprovider {
             ->loadViews()
             ->loadConfiguration();
 
+
+        $this->publishes([
+            __DIR__.'/../configuration' => config_path('yaml/scaffold'),
+        ]);
+
+
         $this->registerMenu();
     }
 
@@ -56,6 +62,11 @@ class ScaffoldServiceProvider extends Serviceprovider {
     protected function loadConfiguration() {
         Support\set_config_from_yaml(
             __DIR__ . '/../configuration/general.yaml' , 'scaffold'
+        );
+
+
+        Support\merge_yaml_config_from(
+            config_path('yaml/scaffold/general.yaml') , 'scaffold'
         );
 
         return $this;
