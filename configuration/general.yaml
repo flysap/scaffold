@@ -1,5 +1,5 @@
 # here will be enabled / disabled smart search .
-smart_search: true
+smart_search: false
 
 # here will be declared an list of namespaces
 model_namespaces:

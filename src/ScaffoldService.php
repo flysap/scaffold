@@ -48,34 +48,48 @@ class ScaffoldService {
          * Adding table filter .
          *
          */
-        $table->filter(function($query) use($params, $table) {
-            $eloquent         = $table->getDriver()->getSource()->getModel();
-            $availableFilters = $eloquent->skyFilter();
+        #@todo for default smart search is disabled, need an package wich will do that smart search .
+        if(! $this->isEnabledSmartSearch())
+            $table->filter(function($query) use($params, $table) {
+                $eloquent         = $table->getDriver()->getSource()->getModel();
+                $availableFilters = $eloquent->skyFilter();
 
-            foreach ($availableFilters as $key => $options) {
-                if( isset($params[$key]) && ( !empty($params[$key]) ) ) {
+                foreach ($availableFilters as $key => $options) {
+                    if( isset($params[$key]) && ( !empty($params[$key]) ) ) {
 
-                    $type = $options;
-                    if( is_array($options) )
-                        $type = $options['type'];
+                        $type = $options;
+                        if( is_array($options) )
+                            $type = $options['type'];
 
-                    /** If there is custom query than run it . */
-                    if( is_array($options) && isset($options['query']) && ( $options['query'] instanceof \Closure ) ) {
-                        $custom = $options['query'];
+                        /** If there is custom query than run it . */
+                        if( is_array($options) && isset($options['query']) && ( $options['query'] instanceof \Closure ) ) {
+                            $custom = $options['query'];
 
-                        $query = $custom($query, $params[$key]);
-                    } else {
-                        if( $type == 'select' || $type == 'checkbox' )
-                            $query = $query->where($key, $params[$key]);
-                        else
-                            $query = $query->where($key, 'LIKE', '%'.$params[$key].'%');
+                            $query = $custom($query, $params[$key]);
+                        } else {
+                            if( $type == 'select' || $type == 'checkbox' )
+                                $query = $query->where($key, $params[$key]);
+                            else
+                                $query = $query->where($key, 'LIKE', '%'.$params[$key].'%');
+                        }
                     }
                 }
-            }
 
-            return $query;
-        });
+                return $query;
+            });
+        else
+            $table->filter(function($query) use($params, $table) {
+                $eloquent         = $table->getDriver()->getSource()->getModel();
+                $availableFilters = $eloquent->skyFilter();
 
+                foreach ($availableFilters as $key => $options)
+                    if( isset($params[$key]) && ( !empty($params[$key]) ) )
+                        $query = $eloquent->search(
+                            $params[$key]
+                        );
+
+                return $query;
+            });
 
         /** @var Get exporters . $exporters */
         $exporters = config('scaffold.exporters');
@@ -185,7 +199,7 @@ DOC;
             }
 
             $eloquent->fill($params)
-                ->refresh($params)
+             #   ->refresh($params)
                 ->save();
 
             return redirect()
@@ -223,7 +237,6 @@ DOC;
     private function getModel($file, $identificator = null) {
         $spaces = config('scaffold.model_namespaces');
 
-
         list($vendor, $user, $model) = explode('/', $file);
 
         foreach ($spaces as $space) {
@@ -249,6 +262,20 @@ DOC;
         }
 
         return $model;
+    }
+
+    /**
+     * Check if is enabled smart search .
+     *
+     * @return bool
+     */
+    protected function isEnabledSmartSearch() {
+        $isEnabled = false;
+
+        if( isset(config('scaffold')['smart_search']) && config('scaffold')['smart_search'] == true )
+            $isEnabled = true;
+
+        return $isEnabled;
     }
 
 }
