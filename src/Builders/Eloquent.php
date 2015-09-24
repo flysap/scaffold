@@ -85,6 +85,7 @@ class Eloquent extends Builder implements BuildAble {
             if(! is_array($field))
                 $field = (array)$field;
 
+
             if( ! method_exists($this->getSource(), $relation) )
                 return false;
 
@@ -96,6 +97,7 @@ class Eloquent extends Builder implements BuildAble {
             if( isset($attributes['query']) )
                 if( ($queryClosure = $attributes['query']) && $queryClosure instanceof \Closure )
                     $query = $queryClosure($query);
+
 
             $items = $query->get();
 

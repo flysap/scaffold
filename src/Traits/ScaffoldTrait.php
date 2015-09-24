@@ -31,6 +31,10 @@ trait ScaffoldTrait {
      * @return array|mixed
      */
     public function skyFilter() {
+        #@todo when will be available contract check using contract .
+        if( isset($this['searchable']) && (isset(config('scaffold')['smart_search'] ) && config('scaffold')['smart_search']  == true))
+            return ['search' => ['type' => 'text']];
+
         $columns = $this->columnsTable();
 
         unset($columns['id']);

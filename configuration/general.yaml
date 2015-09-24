@@ -1,3 +1,6 @@
+# here will be enabled / disabled smart search .
+smart_search: true
+
 # here will be declared an list of namespaces
 model_namespaces:
   - storage/modules
