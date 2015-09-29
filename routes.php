@@ -3,7 +3,7 @@
 
 use Illuminate\Http\Request;
 
-Route::group(['prefix' => 'scaffold', 'as' => 'scaffold::'], function() {
+Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' => 'role:admin'], function() {
 
     /**
      * This is an custom url where you can send custom request for your eloquent models.
