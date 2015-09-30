@@ -188,9 +188,23 @@ DOC;
                     $eloquent->storeSeo($params['seo']);
             }
 
+
+            /**
+             * By default we will upload image through some of filters .
+             */
             if( $eloquent instanceof ImageAble ) {
-                if( isset($params['images']) )
-                    $eloquent->upload($params['images']);
+                if( isset($params['images']) ) {
+                    $filters = [];
+
+                    if( isset($eloquent['filters']) )
+                        $filters = $eloquent['filters'];
+
+                    if( in_array('filters', get_class_methods(get_class($eloquent))) )
+                        $filters = $eloquent->filters();
+
+                    $eloquent->upload($params['images'], null, $filters);
+                }
+
             }
 
             if( $eloquent instanceof TaggableInterface ) {
