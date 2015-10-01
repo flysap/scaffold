@@ -194,17 +194,50 @@ DOC;
              */
             if( $eloquent instanceof ImageAble ) {
                 if( isset($params['images']) ) {
-                    $filters = [];
+                    $behaviors = [];
 
-                    if( isset($eloquent['filters']) )
-                        $filters = $eloquent['filters'];
+                    /**
+                     * When image is uploaded we have for the first to check if the user has custom configurations for uploading images.
+                     *  if there persist some image filters we have walk through that filters.
+                     *   additionally we can set custom store path for images or event set an placeholder for image name .
+                     */
 
-                    if( in_array('filters', get_class_methods(get_class($eloquent))) )
-                        $filters = $eloquent->filters();
+                    if( isset($eloquent['behaviors']) )
+                        $behaviors = $eloquent['behaviors'];
 
-                    $eloquent->upload($params['images'], null, $filters);
+                    if( in_array('behaviors', get_class_methods(get_class($eloquent))) )
+                        $behaviors = $eloquent->behaviors();
+
+
+                    /** @var Check for filters . $filters */
+                    $filters = null;
+                    if( isset($behaviors['filters']) )
+                        $filters = $behaviors['filters'];
+
+
+                    /** @var Check for path . $path */
+                    $path = null;
+                    if( isset($behaviors['path']) )
+                        $path = public_path($behaviors['path']);
+
+
+                    /** @var Check for custom placeholder . $placeholder */
+                    $placeholder = null;
+                    if( isset($behaviors['placeholder']) ) {
+                        $placeholder = $behaviors['placeholder'];
+
+                        $availablePlaceholders = array_merge(
+                            $eloquent->getAttributes(),
+                            ['date' => date('Y.m.d')],
+                            isset($behaviors['available']) ? $behaviors['available'] : []
+                        );
+
+                        foreach ($availablePlaceholders as $key => $value)
+                            $placeholder = str_replace('%'.$key.'%', $value, $placeholder);
+                    }
+
+                    $eloquent->upload($params['images'], $path, $filters, $placeholder);
                 }
-
             }
 
             if( $eloquent instanceof TaggableInterface ) {
