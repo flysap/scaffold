@@ -221,6 +221,12 @@ DOC;
                         $path = public_path($behaviors['path']);
 
 
+                    /** @var Check for closure . $closure */
+                    $closure = null;
+                    if( isset($behaviors['closure']) && ( $behaviors['closure'] instanceof \Closure ) )
+                        $closure = $behaviors['closure'];
+
+
                     /** @var Check for custom placeholder . $placeholder */
                     $placeholder = null;
                     if( isset($behaviors['placeholder']) ) {
@@ -236,7 +242,7 @@ DOC;
                             $placeholder = str_replace('%'.$key.'%', $value, $placeholder);
                     }
 
-                    $eloquent->upload($params['images'], $path, $filters, $placeholder);
+                    $eloquent->upload($params['images'], $path, $filters, $placeholder, $closure);
                 }
             }
 
