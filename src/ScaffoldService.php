@@ -5,7 +5,7 @@ namespace Flysap\Scaffold;
 use Cartalyst\Tags\TaggableInterface;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
-use Flysap\TableManager;
+use Parfumix\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
 use Illuminate\Http\Request;

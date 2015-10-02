@@ -8,7 +8,7 @@
       },
       {
         "type": "git",
-        "url" : "git@github.com:flysap/table-manager.git"
+        "url" : "git@github.com:parfumix/table-manager.git"
       },
       {
         "type": "git",
@@ -19,7 +19,7 @@
         "parfumix/data-exporter": "dev-master",
         "laravel/framework": "~5.1",
         "flysap/form-builder": "dev-master",
-        "flysap/table-manager": "dev-master",
+        "parfumix/table-manager": "dev-master",
         "flysap/support": "dev-master",
         "symfony/yaml": "~2.7",
         "symfony/filesystem": "~2.7"

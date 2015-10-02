@@ -25,7 +25,7 @@
                     </div><!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
                         {!! $table->render() !!}
-                        {!! Flysap\TableManager\render_pagination($table, null, ['scope' => request('scope')]) !!}
+                        {!! Parfumix\TableManager\render_pagination($table, null, ['scope' => request('scope')]) !!}
                         {{_('Download')}} : {!! $exporters->render() !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
@@ -38,7 +38,7 @@
                     </a>
                 </div>
                 <div class="box">
-                {!! Flysap\TableManager\render_filter_form($table) !!}
+                {!! Parfumix\TableManager\render_filter_form($table) !!}
                 </div>
             </div><!-- /.col -->
         </div><!-- /.row -->
