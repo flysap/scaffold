@@ -99,7 +99,6 @@ class ScaffoldService {
         $exporters = (new Exporters)
             ->setExporters($exporters);
 
-
         /** Export if . */
         if( isset($params['export']) ) {
             $exporter = $params['export'];
@@ -124,7 +123,6 @@ class ScaffoldService {
                 $driver
             );
         }
-
 
         $table->addColumn(['closure' => function($value, $attributes) use($model) {
             $elements = $attributes['elements'];
@@ -210,7 +208,7 @@ DOC;
 
 
                     /** @var Check for filters . $filters */
-                    $filters = null;
+                    $filters = [];
                     if( isset($behaviors['filters']) )
                         $filters = $behaviors['filters'];
 
