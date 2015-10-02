@@ -3,7 +3,7 @@
         @include('scaffold::scaffold.elements.' . $element->getAttribute('type'))
     @else
         <div class="form-group">
-            {!!Flysap\FormBuilder\render_element($element, $form, ['class' => 'form-control'])!!}
+            {!!Parfumix\FormBuilder\render_element($element, $form, ['class' => 'form-control'])!!}
         </div>
     @endif
 @endif

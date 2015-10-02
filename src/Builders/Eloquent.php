@@ -4,7 +4,7 @@ namespace Flysap\Scaffold\Builders;
 
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
-use Flysap\FormBuilder;
+use Parfumix\FormBuilder;
 use Laravel\Meta;
 use Localization as Locale;
 use DataExporter;

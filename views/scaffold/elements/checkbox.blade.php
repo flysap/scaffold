@@ -1,3 +1,3 @@
 <div class="checkbox">
-    {!!Flysap\FormBuilder\render_element($element, $form)!!}
+    {!!Parfumix\FormBuilder\render_element($element, $form)!!}
 </div>

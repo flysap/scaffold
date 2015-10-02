@@ -4,7 +4,7 @@
     "repositories": [
       {
         "type": "git",
-        "url" : "git@github.com:flysap/form-builder.git"
+        "url" : "git@github.com:parfumix/form-builder.git"
       },
       {
         "type": "git",
@@ -18,7 +18,7 @@
     "require": {
         "parfumix/data-exporter": "dev-master",
         "laravel/framework": "~5.1",
-        "flysap/form-builder": "dev-master",
+        "parfumix/form-builder": "dev-master",
         "parfumix/table-manager": "dev-master",
         "flysap/support": "dev-master",
         "symfony/yaml": "~2.7",

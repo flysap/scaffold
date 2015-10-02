@@ -2,7 +2,7 @@
 
 namespace Flysap\Scaffold;
 
-use Flysap\FormBuilder\FormServiceProvider;
+use Parfumix\FormBuilder\FormServiceProvider;
 use Parfumix\TableManager\TableServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Flysap\Support;

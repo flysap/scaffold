@@ -10,7 +10,7 @@ use Eloquent\Translatable\Translatable;
 use Laravel\Meta\Eloquent\MetaSeoable;
 use Localization as Locale;
 use Laravel\Meta;
-use Flysap\FormBuilder;
+use Parfumix\FormBuilder;
 use DataExporter;
 
 abstract class Builder {

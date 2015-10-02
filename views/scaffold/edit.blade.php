@@ -15,10 +15,10 @@
     <!-- Main content -->
     <section class="content">
 
-        {!!Flysap\FormBuilder\open_form($form)!!}
+        {!!Parfumix\FormBuilder\open_form($form)!!}
             <div class="row">
             <div class="col-md-12">
-                @if( Flysap\FormBuilder\has_groups($form) )
+                @if( Parfumix\FormBuilder\has_groups($form) )
                     <!-- Custom Tabs -->
                     <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
@@ -60,8 +60,8 @@
 
             </div><!-- /.col -->
         </div> <!-- /.row -->
-        {!!Flysap\FormBuilder\render_button(['value' => 'Submit', 'type' => 'submit'])!!}
-        {!!Flysap\FormBuilder\close_form($form)!!}
+        {!!Parfumix\FormBuilder\render_button(['value' => 'Submit', 'type' => 'submit'])!!}
+        {!!Parfumix\FormBuilder\close_form($form)!!}
 
     </section><!-- /.content -->
 @endsection

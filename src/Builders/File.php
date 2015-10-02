@@ -4,7 +4,7 @@ namespace Flysap\Scaffold\Builders;
 
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
-use Flysap\FormBuilder;
+use Parfumix\FormBuilder;
 
 class File extends Builder implements BuildAble {
 
