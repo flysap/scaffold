@@ -13,9 +13,16 @@ use Laravel\Meta\Eloquent\MetaSeoable;
 use Modules;
 use Input;
 use DataExporter;
+use Parfumix\FormBuilder;
 
 class ScaffoldService {
 
+    /**
+     * Lists model .
+     *
+     * @param $model
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
+     */
     public function lists($model) {
         $eloquent = $this->getModel($model);
 
@@ -140,15 +147,41 @@ DOC;
         return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'model'));
     }
 
+    /**
+     * Create new model .
+     *
+     * @param $model
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
     public function create($model) {
         $eloquent = $this->getModel($model);
 
-        $form = (new Eloquent($eloquent))
-            ->build();
+        if($_POST) {
+            #@todo temp can be problem if there is enabled validator .
+            $eloquent = $eloquent->create();
 
-        return view('scaffold::scaffold.create', compact('form'));
+            $this->update($model, $eloquent->id);
+
+            return redirect(
+                route('scaffold::edit', ['id' => $eloquent->id, 'eloquent_path' => $model])
+            );
+        }
+
+        $form = (new Eloquent($eloquent))
+            ->build([
+                'method' => FormBuilder\Form::METHOD_POST
+            ]);
+
+        return view('scaffold::scaffold.edit', compact('form'));
     }
 
+    /**
+     * Update model .
+     *
+     * @param $model
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
+     */
     public function update($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
@@ -260,6 +293,13 @@ DOC;
         return view('scaffold::scaffold.edit', compact('form'));
     }
 
+    /**
+     * Delete model
+     *
+     * @param $model
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function delete($model, $id) {
         $eloquent = $this->getModel($model, $id);
 
