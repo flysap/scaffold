@@ -18,27 +18,18 @@ class Eloquent extends Builder implements BuildAble {
      * @return FormBuilder\Form
      */
     public function build($params = array()) {
-        $form = new FormBuilder\Form($params);
-        $form->setElements(
-            $this->getElements(), true
-        );
-
-        return $form;
-    }
-
-    /**
-     * Get built elements .
-     *
-     * @return array
-     */
-    public function getElements() {
         $elements = [];
 
         $elements = $this->processFields($elements);
         $elements = $this->processRelations($elements);
         $elements = $this->getAppliedPackages($elements);
 
-        return $elements;
+        $form = new FormBuilder\Form($params);
+        $form->setElements(
+            $elements, true
+        );
+
+        return $form;
     }
 
 
@@ -57,7 +48,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return mixed
      */
     protected function getRelations() {
-        if( $this->hasRelations() )
+        if ($this->hasRelations())
             return $this->getSource()->relation;
 
         return array();
@@ -71,9 +62,10 @@ class Eloquent extends Builder implements BuildAble {
     protected function processRelations($elements = array()) {
         $relations = $this->getRelations();
 
-        array_walk($relations, function($attributes, $relation) use(& $elements) {
-            if(! is_array($attributes)) {
-                $relation = $attributes; $attributes = [];
+        array_walk($relations, function ($attributes, $relation) use (& $elements) {
+            if (! is_array($attributes)) {
+                $relation = $attributes;
+                $attributes = [];
             }
 
             /**
@@ -82,11 +74,11 @@ class Eloquent extends Builder implements BuildAble {
              */
             $field = isset($attributes['fields']) ? array_pull($attributes, 'fields') : str_singular($relation);
 
-            if(! is_array($field))
+            if (! is_array($field))
                 $field = (array)$field;
 
 
-            if( ! method_exists($this->getSource(), $relation) )
+            if (! method_exists($this->getSource(), $relation))
                 return false;
 
             $query = $this->getSource()->{$relation}();
@@ -94,24 +86,24 @@ class Eloquent extends Builder implements BuildAble {
             /**
              * If there persist custom query to extract relation data will be applied that query .
              */
-            if( isset($attributes['query']) )
-                if( ($queryClosure = $attributes['query']) && $queryClosure instanceof \Closure )
+            if (isset($attributes['query']))
+                if (($queryClosure = $attributes['query']) && $queryClosure instanceof \Closure)
                     $query = $queryClosure($query);
 
 
             $items = $query->get();
 
-            foreach($items as $key => $item) {
+            foreach ($items as $key => $item) {
 
                 /**
                  * If there is value we have to show the id to add possibility to edit that value .
                  */
                 $hidden = FormBuilder\get_element('hidden', $attributes + [
-                    'value' => $item->{$item->getKeyName()}
-                ]);
+                        'value' => $item->{$item->getKeyName()}
+                    ]);
 
                 $hidden->name(
-                    $relation .'['.$key.']'.'['.$item->getKeyName().']'
+                    $relation . '[' . $key . ']' . '[' . $item->getKeyName() . ']'
                 );
 
                 /**
@@ -119,11 +111,11 @@ class Eloquent extends Builder implements BuildAble {
                  *
                  */
                 $sync = FormBuilder\get_element('hidden', $attributes + [
-                    'value' => 1
-                ]);
+                        'value' => 1
+                    ]);
 
                 $sync->name(
-                    $relation .'['.$key.']'.'[sync]'
+                    $relation . '[' . $key . ']' . '[sync]'
                 );
 
                 array_push($elements, $hidden);
@@ -133,29 +125,30 @@ class Eloquent extends Builder implements BuildAble {
                  * Go through values and extract them .
                  *
                  */
-                foreach($field as $value => $valueAttr) {
+                foreach ($field as $value => $valueAttr) {
 
-                    if(! is_array($valueAttr)) {
-                        $value = $valueAttr; $valueAttr = [];
+                    if (! is_array($valueAttr)) {
+                        $value = $valueAttr;
+                        $valueAttr = [];
                     }
 
-                    if(! isset($valueAttr['label']))
+                    if (! isset($valueAttr['label']))
                         $valueAttr['label'] = ucfirst($value);
 
-                    if(! isset($valueAttr['group']))
+                    if (! isset($valueAttr['group']))
                         $valueAttr['group'] = strtolower($relation);
 
-                    if( $valueAttr instanceof \Closure )
+                    if ($valueAttr instanceof \Closure)
                         $valueAttr = $valueAttr();
                     else
                         $valueAttr = array_merge($valueAttr, $attributes);
 
                     $element = $this->getElementInstance(
-                          $value, $valueAttr, $item
+                        $value, $valueAttr, $item
                     );
 
                     $element->name(
-                        $relation .'['.$key.']'.'['.$value.']'
+                        $relation . '[' . $key . ']' . '[' . $value . ']'
                     );
 
                     array_push($elements, $element);
@@ -174,7 +167,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return int
      */
     protected function hasFields() {
-        return count( $this->getSource()->skyEdit() );
+        return count($this->getSource()->skyEdit());
     }
 
     /**
@@ -195,17 +188,18 @@ class Eloquent extends Builder implements BuildAble {
     protected function processFields($elements = array()) {
         $fields = $this->getFields();
 
-        array_walk($fields, function($attributes, $key) use(& $elements) {
-            if( is_string($attributes) ) {
+        array_walk($fields, function ($attributes, $key) use (& $elements) {
+            if (is_string($attributes)) {
                 $attributes = ['type' => $attributes];
-            } elseif(! is_array($attributes)) {
-                $key = $attributes; $attributes = [];
+            } elseif (! is_array($attributes)) {
+                $key = $attributes;
+                $attributes = [];
             }
 
-            if(! isset($attributes['label']))
+            if (! isset($attributes['label']))
                 $attributes['label'] = ucfirst($key);
 
-            $element    = $this->getElementInstance($key, $attributes);
+            $element = $this->getElementInstance($key, $attributes);
 
             array_push($elements, $element);
         });
@@ -254,7 +248,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return mixed
      */
     protected function getCasts($attribute, $source = null) {
-        if(is_null($source))
+        if (is_null($source))
             $source = $this->getSource();
 
         return $this->hasCasts($attribute, $source) ? $source->casts[$attribute] : null;
@@ -268,7 +262,7 @@ class Eloquent extends Builder implements BuildAble {
      * @return bool
      */
     protected function hasCasts($attribute, $source = null) {
-        if(is_null($source))
+        if (is_null($source))
             $source = $this->getSource();
 
         return isset($source->casts[$attribute]);
@@ -285,22 +279,22 @@ class Eloquent extends Builder implements BuildAble {
      * @throws FormBuilder\ElementException
      */
     public function getElementInstance($key, $attributes, $source = null) {
-        if( is_null($source) )
+        if (is_null($source))
             $source = $this->getSource();
 
-        if( isset($attributes['type']) )
+        if (isset($attributes['type']))
             $type = $attributes['type'];
-        elseif( $this->hasCasts($key, $source) )
+        elseif ($this->hasCasts($key, $source))
             $type = $this->getCasts($key, $source);
         else
             $type = self::DEFAULT_TYPE_ELEMENT;
 
-        if(! isset($attributes['value'])) {
-            if( array_key_exists($key, $source->getAttributes()) )
+        if (! isset($attributes['value'])) {
+            if (array_key_exists($key, $source->getAttributes()))
                 $attributes['value'] = $source->{$key};
         }
 
-        if(! isset($attributes['name']))
+        if (! isset($attributes['name']))
             $attributes['name'] = $key;
 
         return FormBuilder\get_element($type, $attributes);

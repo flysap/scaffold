@@ -15,6 +15,10 @@ use Input;
 use DataExporter;
 use Parfumix\FormBuilder;
 
+/**
+ * Class ScaffoldService
+ * @package Flysap\Scaffold
+ */
 class ScaffoldService {
 
     /**
@@ -55,7 +59,7 @@ class ScaffoldService {
          * Adding table filter .
          *
          */
-        #@todo for default smart search is disabled, need an package wich will do that smart search .
+        #@todo for default smart search is disabled, need an package which will do that smart search .
         if(! $this->isEnabledSmartSearch())
             $table->filter(function($query) use($params, $table) {
                 $eloquent         = $table->getDriver()->getSource()->getModel();
@@ -219,7 +223,6 @@ DOC;
                     $eloquent->storeSeo($params['seo']);
             }
 
-
             /**
              * By default we will upload image through some of filters .
              */
@@ -346,10 +349,7 @@ DOC;
             #@todo check psr4 ..
             $class = 'Modules\\' . $vendor . '\\' . $user . '\\' . ucfirst($model);
 
-            if(! is_null($identificator))
-                $model = $class::find($identificator);
-            else
-                $model = new $class;
+            $model = $class::findOrNew($identificator);
         }
 
         return $model;

@@ -30,9 +30,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
      * @return void
      */
     public function register() {
-        $this->app->singleton('scaffold', function() {
-            return new ScaffoldService();
-        });
+        $this->app->bind('scaffold', ScaffoldService::class);
 
         $this->app->singleton('table-info', TableInfo::class);
 
@@ -59,11 +57,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
      */
     protected function loadConfiguration() {
         Support\set_config_from_yaml(
-            __DIR__ . '/../configuration/general.yaml' , 'scaffold'
-        );
-
-        Support\merge_yaml_config_from(
-            config_path('yaml/scaffold/general.yaml') , 'scaffold'
+            __DIR__ . '/../configuration/general.yaml' , 'scaffold', config_path('yaml/scaffold/general.yaml')
         );
 
         return $this;
