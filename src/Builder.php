@@ -117,6 +117,7 @@ abstract class Builder {
                     'src'  => $image->path,
                     'title'  => $image->title,
                     'group' => 'images',
+                    'width' => '250px',
                 ]);
 
             $elements[]  = FormBuilder\get_element('file', [
