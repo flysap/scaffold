@@ -16,8 +16,8 @@ class TableInfo {
         'enum' => 'select',
         'tinyint' => 'checkbox',
         'varchar' => 'text',
-        'longtext' => 'textarea',
-        'text' => 'textarea',
+        'longtext' => 'wysiwyg',
+        'text' => 'wysiwyg',
         'timestamp' => 'date',
         'date' => 'date'
     ];
