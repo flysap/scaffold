@@ -12,6 +12,7 @@ use Localization as Locale;
 use Laravel\Meta;
 use Parfumix\FormBuilder;
 use DataExporter;
+use Parfumix\Likeable\LikeAble;
 
 abstract class Builder {
 
@@ -190,6 +191,20 @@ abstract class Builder {
             ]);
 
             $elements[] = $addTag;
+        }
+
+        /**
+         * If source can be liked
+         */
+        if( $source instanceof LikeAble ) {
+            $likes = count($source->likes);
+
+            $like = FormBuilder\element_custom([
+                'group' => 'likes',
+                'value' => '<p>Likes '.$likes.''
+            ]);
+
+            $elements[] = $like;
         }
 
         return $elements;
