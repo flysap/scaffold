@@ -201,7 +201,7 @@ abstract class Builder {
 
             $like = FormBuilder\element_custom([
                 'group' => 'likes',
-                'value' => '<p>Likes '.$likes.''
+                'value' => '<p>Likes '.$likes
             ]);
 
             $elements[] = $like;
