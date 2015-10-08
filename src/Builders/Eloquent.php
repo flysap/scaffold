@@ -4,6 +4,10 @@ namespace Flysap\Scaffold\Builders;
 
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
+use Flysap\Scaffold\ScaffoldAble;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Parfumix\FormBuilder;
 use Laravel\Meta;
 use Localization as Locale;
@@ -68,16 +72,6 @@ class Eloquent extends Builder implements BuildAble {
                 $attributes = [];
             }
 
-            /**
-             * Get the field for current relations, if there is not field in attributes we will try automatically to
-             *  detect the field based on table singular mode name .
-             */
-            $field = isset($attributes['fields']) ? array_pull($attributes, 'fields') : str_singular($relation);
-
-            if (! is_array($field))
-                $field = (array)$field;
-
-
             if (! method_exists($this->getSource(), $relation))
                 return false;
 
@@ -90,72 +84,179 @@ class Eloquent extends Builder implements BuildAble {
                 if (($queryClosure = $attributes['query']) && $queryClosure instanceof \Closure)
                     $query = $queryClosure($query);
 
-
             $items = $query->get();
 
-            foreach ($items as $key => $item) {
 
-                /**
-                 * If there is value we have to show the id to add possibility to edit that value .
-                 */
-                $hidden = FormBuilder\get_element('hidden', $attributes + [
-                        'value' => $item->{$item->getKeyName()}
+            /** Get editable fields for related model . */
+            if( ! isset($attributes['fields']) ) {
+                $related = $query->getRelated();
+
+                $fields = $related->getFillable();
+                if( $related instanceof ScaffoldAble )
+                    $fields = $related->skyEdit();
+            } else {
+                $fields = $attributes['fields'];
+            }
+
+
+            if( $query instanceof HasOne ) {
+                $item = $items->first();
+
+                if( $item ) {
+                    /**
+                     * If there is value we have to show the id to add possibility to edit that value .
+                     */
+                    $hidden = FormBuilder\get_element('hidden', $attributes + [
+                        'value' => $item->{$query->getRelated()->getKeyName()},
+                        'group' => $relation
                     ]);
 
-                $hidden->name(
-                    $relation . '[' . $key . ']' . '[' . $item->getKeyName() . ']'
-                );
+                    $hidden->name(
+                        $relation . '[' . $query->getRelated()->getKeyName() . ']'
+                    );
 
-                /**
-                 * Adding sync element .
-                 *
-                 */
-                $sync = FormBuilder\get_element('hidden', $attributes + [
-                        'value' => 1
-                    ]);
+                    array_push($elements, $hidden);
+                }
 
-                $sync->name(
-                    $relation . '[' . $key . ']' . '[sync]'
-                );
-
-                array_push($elements, $hidden);
-                array_push($elements, $sync);
-
-                /**
-                 * Go through values and extract them .
-                 *
-                 */
-                foreach ($field as $value => $valueAttr) {
-
-                    if (! is_array($valueAttr)) {
-                        $value = $valueAttr;
-                        $valueAttr = [];
+                foreach($fields as $field => $attributesField) {
+                    if (is_string($attributesField)) {
+                        $attributesField = ['type' => $attributesField];
+                    } elseif (! is_array($attributesField)) {
+                        $field = $attributesField;
+                        $attributesField = [];
                     }
 
-                    if (! isset($valueAttr['label']))
-                        $valueAttr['label'] = ucfirst($value);
+                    if( $field == $query->getPlainForeignKey() )
+                        continue;
 
-                    if (! isset($valueAttr['group']))
-                        $valueAttr['group'] = strtolower($relation);
+                    if (! isset($attributesField['label']))
+                        $attributesField['label'] = ucfirst($field);
 
-                    if ($valueAttr instanceof \Closure)
-                        $valueAttr = $valueAttr();
+                    if (! isset($attributesField['group']))
+                        $attributesField['group'] = strtolower($relation);
+
+                    if ($attributesField instanceof \Closure)
+                        $attributesField = $attributesField();
                     else
-                        $valueAttr = array_merge($valueAttr, $attributes);
+                        $attributesField = array_merge($attributesField, $attributes);
 
                     $element = $this->getElementInstance(
-                        $value, $valueAttr, $item
+                        $field, $attributesField, $item
                     );
 
                     $element->name(
-                        $relation . '[' . $key . ']' . '[' . $value . ']'
+                        $relation . '[' . $field . ']'
                     );
 
                     array_push($elements, $element);
                 }
 
+            } elseif( $query instanceof HasMany ) {
+
+                foreach ($items as $key => $item) {
+                    /**
+                     * If there is value we have to show the id to add possibility to edit that value .
+                     */
+                    $hidden = FormBuilder\get_element('hidden', $attributes + [
+                        'value' => $item->{$item->getKeyName()},
+                        'group' => $relation
+                    ]);
+
+                    $hidden->name(
+                        $relation . '[' . $key . ']' . '[' . $item->getKeyName() . ']'
+                    );
+
+                    /**
+                     * Adding sync element .
+                     *
+                     */
+                    $sync = FormBuilder\get_element('hidden', $attributes + [
+                        'value' => 1
+                    ]);
+
+                    $sync->name(
+                        $relation . '[' . $key . ']' . '[sync]'
+                    );
+
+                    array_push($elements, $hidden);
+                    array_push($elements, $sync);
+
+                    /**
+                     * Go through values and extract them .
+                     */
+                    foreach ($fields as $field => $attributesField) {
+                        if (is_string($attributesField)) {
+                            $attributesField = ['type' => $attributesField];
+                        } elseif (! is_array($attributesField)) {
+                            $field = $attributesField;
+                            $attributesField = [];
+                        }
+
+                        if( $field == $query->getPlainForeignKey() )
+                            continue;
+
+                        if (! isset($attributesField['label']))
+                            $attributesField['label'] = ucfirst($field);
+
+                        if (! isset($attributesField['group']))
+                            $attributesField['group'] = strtolower($relation);
+
+                        if ($attributesField instanceof \Closure)
+                            $attributesField = $attributesField();
+                        else
+                            $attributesField = array_merge($attributesField, $attributes);
+
+                        $element = $this->getElementInstance(
+                            $field, $attributesField, $item
+                        );
+
+                        $element->name(
+                            $relation . '[' . $key . ']' . '[' . $field . ']'
+                        );
+
+                        array_push($elements, $element);
+                    }
+                }
+
+                foreach ($fields as $field => $attributesField) {
+                    if (is_string($attributesField)) {
+                        $attributesField = ['type' => $attributesField];
+                    } elseif (! is_array($attributesField)) {
+                        $field = $attributesField;
+                        $attributesField = [];
+                    }
+
+                    if( $field == $query->getPlainForeignKey() )
+                        continue;
+
+                    if (! isset($attributesField['label']))
+                        $attributesField['label'] = ucfirst($field);
+
+                    if (! isset($attributesField['group']))
+                        $attributesField['group'] = strtolower($relation);
+
+                    if ($attributesField instanceof \Closure)
+                        $attributesField = $attributesField();
+                    else
+                        $attributesField = array_merge($attributesField, $attributes);
+
+                    $element = $this->getElementInstance(
+                        $field, $attributesField
+                    );
+
+                    $key = $items->count();
+                    $element->name(
+                        $relation . '[' . $key . ']' . '[' . $field . ']'
+                    );
+
+                    array_push($elements, $element);
+                }
+
+            } elseif( $query instanceof BelongsTo ) {
+                #@todo many to many ..
             }
         });
+
 
         return $elements;
     }
