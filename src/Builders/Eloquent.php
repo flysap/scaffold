@@ -253,10 +253,33 @@ class Eloquent extends Builder implements BuildAble {
                 }
 
             } elseif( $query instanceof BelongsTo ) {
-                #@todo many to many ..
+                $selected = $items->first();
+
+                $value = null;
+                if($selected)
+                    $value = $selected->{$query->getRelated()->getKeyName()};
+
+                $keys = array_keys($fields);
+                $firstField = array_pop($keys);
+
+                $options = $query->getRelated()
+                    ->get()
+                    ->lists($firstField, $query->getRelated()->getKeyName())
+                    ->toArray();
+
+                $select = FormBuilder\element_select(ucfirst($relation), [
+                    'options' => [null => '--Select--'] + $options,
+                    'value' => $value,
+                    'group' => $relation
+                ]);
+
+                $select->name(
+                    $relation . '[' . $query->getRelated()->getKeyName() . ']'
+                );
+
+                array_push($elements, $select);
             }
         });
-
 
         return $elements;
     }
