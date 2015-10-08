@@ -286,7 +286,7 @@ DOC;
             }
 
             $eloquent->fill($params)
-             #   ->refresh($params)
+                ->refresh($params)
                 ->save();
 
             return redirect()
