@@ -166,7 +166,8 @@ abstract class Builder {
                 'onChange' => "$(this).attr('name', 'meta['+$(this).val()+']')"
             ]);
 
-            $elements[] = FormBuilder\element_custom($addMeta->render(), [
+            $elements[] = FormBuilder\element_custom([
+                'value' => $addMeta->render(),
                 'group' => 'meta'
             ]);
         }
