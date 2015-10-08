@@ -103,12 +103,13 @@ class Eloquent extends Builder implements BuildAble {
                 $item = $items->first();
 
                 if( $item ) {
+
                     /**
                      * If there is value we have to show the id to add possibility to edit that value .
                      */
                     $hidden = FormBuilder\get_element('hidden', $attributes + [
                         'value' => $item->{$query->getRelated()->getKeyName()},
-                        'group' => $relation
+                        'group' => str_singular($relation)
                     ]);
 
                     $hidden->name(
@@ -133,7 +134,7 @@ class Eloquent extends Builder implements BuildAble {
                         $attributesField['label'] = ucfirst($field);
 
                     if (! isset($attributesField['group']))
-                        $attributesField['group'] = strtolower($relation);
+                        $attributesField['group'] = str_singular($relation);
 
                     if ($attributesField instanceof \Closure)
                         $attributesField = $attributesField();
@@ -192,6 +193,8 @@ class Eloquent extends Builder implements BuildAble {
                             $attributesField = [];
                         }
 
+
+
                         if( $field == $query->getPlainForeignKey() )
                             continue;
 
@@ -226,6 +229,8 @@ class Eloquent extends Builder implements BuildAble {
                         $attributesField = [];
                     }
 
+                    $attributesField['disabled'] = 'disabled';
+
                     if( $field == $query->getPlainForeignKey() )
                         continue;
 
@@ -251,6 +256,11 @@ class Eloquent extends Builder implements BuildAble {
 
                     array_push($elements, $element);
                 }
+
+                array_push($elements, FormBuilder\element_custom([
+                    'value' => '<a href="#" onClick="$(this).closest(\'div.tab-pane\').find(\'input:disabled\').each(function(k, v) { console.log(1);$(this).removeAttr(\'disabled\') })">Add new</a>',
+                    'group' => strtolower($relation)
+                ]));
 
             } elseif( $query instanceof BelongsTo ) {
                 $selected = $items->first();
