@@ -13,6 +13,7 @@ use Laravel\Meta;
 use Parfumix\FormBuilder;
 use DataExporter;
 use Parfumix\Likeable\LikeAble;
+use Illuminate\Http\Request;
 
 abstract class Builder {
 
@@ -23,8 +24,14 @@ abstract class Builder {
      */
     protected $source;
 
-    public function __construct($source) {
+    /**
+     * @var
+     */
+    protected $params;
+
+    public function __construct($source, array $params = array()) {
         $this->setSource($source);
+        $this->params = $params;
     }
 
     /**
@@ -111,20 +118,47 @@ abstract class Builder {
          *
          */
         if( $source instanceof ImageAble ) {
-            $images = $source->images;
+            $images = $source->images->sortBy('position');
 
-            foreach ($images as $image)
+            $count = 0;
+            foreach ($images as $image) {
+                $count++;
+
+                $after = '';
+                $after .= '<br /><a href="#" onclick="deleteImage($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Delete</a></br>';
+
+                if( ! $image->isMain() )
+                    $after .= '<a href="#" onclick="setAsMain($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Set as main</a><br /></li>';
+
+                $before = '<li class="ui-state-default">';
+                if( $count == 1 )
+                    $before = '<ul id="sortable"><li class="ui-state-default">';
+
+                if( $count == count($images) )
+                    $after .= '</ul>';
+
                 $elements[]  = FormBuilder\get_element('image', [
                     'src'  => $image->path,
                     'title'  => $image->title,
                     'group' => 'images',
+                    'id' => 'image-' . $image->id,
                     'width' => '250px',
+                    'data-id' => $image->id,
+                    'before' => $before,
+                    'after' => $after
                 ]);
+            }
 
-            $elements[]  = FormBuilder\get_element('file', [
-                'group' => 'images',
+            $afterScript = view('scaffold::scaffold.image', [
+                'route' => isset($this->params['model']) ? route('scaffold::custom', ['model' => $this->params['model'], 'id' => $this->params['id']]) : ''
+            ]);
+
+            $elements[] = FormBuilder\element_file('', [
+                'before' => '<div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
+                'after'  => '</div>' . $afterScript,
                 'label' => 'Upload images',
                 'name'  => 'images[]',
+                'group' => 'images'
             ]);
         }
 
