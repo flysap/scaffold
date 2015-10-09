@@ -245,6 +245,9 @@ class Eloquent extends Builder implements BuildAble {
                     else
                         $attributesField = array_merge($attributesField, $attributes);
 
+                    if(! isset($attributesField['value']))
+                        $attributesField['value'] = '';
+
                     $element = $this->getElementInstance(
                         $field, $attributesField
                     );
@@ -258,7 +261,7 @@ class Eloquent extends Builder implements BuildAble {
                 }
 
                 array_push($elements, FormBuilder\element_custom([
-                    'value' => '<a href="#" onClick="$(this).closest(\'div.tab-pane\').find(\'input:disabled\').each(function(k, v) { console.log(1);$(this).removeAttr(\'disabled\') })">Add new</a>',
+                    'value' => '<a href="#" onClick="$(this).closest(\'div.tab-pane\').find(\'input:disabled\').each(function(k, v) { $(this).removeAttr(\'disabled\') })">Add new</a>',
                     'group' => strtolower($relation)
                 ]));
 
