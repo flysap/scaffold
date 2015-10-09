@@ -345,7 +345,7 @@ DOC;
      * @return \Illuminate\Http\JsonResponse
      */
     public function custom($model, $id, Request $request) {
-        $eloquent = $this->getModel($model);
+        $eloquent = $this->getModel($model, $id);
 
         $params = $request->all();
 
@@ -377,6 +377,36 @@ DOC;
                     }
                 }
             }
+
+            if( isset($params['images']['delete']) ) {
+                $imageRow = $eloquent->images()
+                    ->where('id', $params['images']['delete']['id']);
+
+                if( $imageRow )
+                    $imageRow->delete();
+
+                return response()
+                    ->json(['success' => true]);
+            }
+
+
+            #@todo .refactor .
+            if( isset($params['images']['set_main']) ) {
+                $imageRow = $eloquent->images()
+                    ->where('id', $params['images']['set_main']['id'])
+                    ->first();
+
+                if( $imageRow ) {
+                    $eloquent->images()
+                        ->update(['is_main' => 0]);
+
+                    $imageRow->setMain();
+                }
+
+                return response()
+                    ->json(['success' => true]);
+            }
+
         }
     }
 
