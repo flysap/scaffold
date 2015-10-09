@@ -185,7 +185,7 @@ DOC;
 
         if($_POST) {
             #@todo temp can be problem if there is enabled validator .
-            $eloquent = $eloquent->create();
+            $eloquent = $eloquent->create($_POST);
 
             $this->update($model, $eloquent->id);
 
