@@ -9,10 +9,10 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
      * This is an custom url where you can send custom request for your eloquent models.
      *
      */
-    Route::any('custom/{id}/{eloquent_path}', ['as' => 'custom', function(Request $request, $eloquent) {
+    Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}/', ['as' => 'custom', function($id, $file, Request $request) {
         return app('scaffold')
-            ->custom($request, $eloquent);
-    }]);
+            ->custom($file, $id, $request);
+    }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::match(['post', 'get'],'lists/{eloquent_path}', ['as' => 'main', function($file) {
         return app('scaffold')
