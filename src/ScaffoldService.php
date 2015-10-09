@@ -5,6 +5,8 @@ namespace Flysap\Scaffold;
 use Cartalyst\Tags\TaggableInterface;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
+use Eloquent\Sortable\Sortable;
+use Flysap\Support\Traits\ElementPermissions;
 use Parfumix\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
@@ -21,6 +23,8 @@ use Parfumix\FormBuilder;
  */
 class ScaffoldService {
 
+    use ElementPermissions;
+
     /**
      * Lists model .
      *
@@ -32,7 +36,7 @@ class ScaffoldService {
 
         $params = Input::all();
 
-        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover']);
+        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover', 'sortable' => true]);
 
         $scopes = (new Scopes)
             ->addScopes(
@@ -133,6 +137,25 @@ class ScaffoldService {
                 $exporter,
                 $driver
             );
+        }
+
+        /** If eloquent implements sortable than sort . */
+        if( isset($params['sortable']) ) {
+            if( $eloquent instanceof Sortable ) {
+                $sortableRow  = $eloquent->find($params['sortable']['id']);
+                $indicatorRow = $eloquent->find($params['sortable']['element']);
+                $position     = isset($params['sortable']['position']) ? $params['sortable']['position'] : 'after';
+
+                if( ! in_array($position, ['before', 'after']) )
+                    return response()
+                        ->json(['success' => true]);
+
+                if( $sortableRow && $indicatorRow )
+                    $sortableRow->{$position}($indicatorRow);
+
+                return response()
+                    ->json(['success' => true]);
+            }
         }
 
         $table->addColumn(['closure' => function($value, $attributes) use($model) {
@@ -242,7 +265,6 @@ DOC;
                     if( in_array('behaviors', get_class_methods(get_class($eloquent))) )
                         $behaviors = $eloquent->behaviors();
 
-
                     /** @var Check for filters . $filters */
                     $filters = [];
                     if( isset($behaviors['filters']) )
@@ -276,7 +298,10 @@ DOC;
                             $placeholder = str_replace('%'.$key.'%', $value, $placeholder);
                     }
 
-                    $eloquent->upload($params['images'], $path, $filters, $placeholder, $closure);
+
+                    /** Check for permissions if current user can upload images  */
+                    if( $this->isAllowed(isset($behaviors['roles']) ? $behaviors['roles'] : [], isset($behaviors['permissions']) ? $behaviors['permissions'] : []) )
+                        $eloquent->upload($params['images'], $path, $filters, $placeholder, $closure);
                 }
             }
 
