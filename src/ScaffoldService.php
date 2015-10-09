@@ -36,7 +36,7 @@ class ScaffoldService {
 
         $params = Input::all();
 
-        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover', 'sortable' => true]);
+        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover', 'sortable' => ($eloquent instanceof Sortable)]);
 
         $scopes = (new Scopes)
             ->addScopes(
@@ -231,7 +231,7 @@ DOC;
             );
         }
 
-        $form = (new Eloquent($eloquent))
+        $form = (new Eloquent($eloquent, ['model' => $model, 'id' => $id]))
             ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '']);
 
         if( $_POST ) {
@@ -298,7 +298,6 @@ DOC;
                             $placeholder = str_replace('%'.$key.'%', $value, $placeholder);
                     }
 
-
                     /** Check for permissions if current user can upload images  */
                     if( $this->isAllowed(isset($behaviors['roles']) ? $behaviors['roles'] : [], isset($behaviors['permissions']) ? $behaviors['permissions'] : []) )
                         $eloquent->upload($params['images'], $path, $filters, $placeholder, $closure);
@@ -340,10 +339,45 @@ DOC;
     /**
      * Custom requests .
      *
-     * @param Request $params
+     * @param $model
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function custom(Request $params) {
-        #@todo
+    public function custom($model, $id, Request $request) {
+        $eloquent = $this->getModel($model);
+
+        $params = $request->all();
+
+        /** If eloquent implements sortable than sort . */
+        if( $request->has('images') ) {
+
+            if( isset($params['images']['sortable']) ) {
+
+                if( $eloquent instanceof ImageAble ) {
+                    $imageClass = $eloquent->imageClass();
+                    $imageRow = (new $imageClass);
+
+                    if( $imageRow instanceof Sortable ) {
+                        $sortable = $params['images']['sortable'];
+
+                        $sortableRow  = $imageRow->find($sortable['id']);
+                        $indicatorRow = $imageRow->find($sortable['element']);
+                        $position     = isset($sortable['position']) ? $sortable['position'] : 'after';
+
+                        if( ! in_array($position, ['before', 'after']) )
+                            return response()
+                                ->json(['success' => true]);
+
+                        if( $sortableRow && $indicatorRow )
+                            $sortableRow->{$position}($indicatorRow);
+
+                        return response()
+                            ->json(['success' => true]);
+                    }
+                }
+            }
+        }
     }
 
     /**
