@@ -63,8 +63,16 @@ class ScaffoldService {
          * Adding table filter .
          *
          */
-        #@todo for default smart search is disabled, need an package which will do that smart search .
-        if(! $this->isEnabledSmartSearch())
+        if( $this->isEnabledSmartSearch() && isset($eloquent['searchable']) )
+            $table->filter(function($query) use($params, $table) {
+                $eloquent = $table->getDriver()->getSource()->getModel();
+
+                if( isset($params['search']) && !empty($params['search']) )
+                    $query = $eloquent->search($params['search']);
+
+                return $query;
+            });
+        else
             $table->filter(function($query) use($params, $table) {
                 $eloquent         = $table->getDriver()->getSource()->getModel();
                 $availableFilters = $eloquent->skyFilter();
@@ -89,19 +97,6 @@ class ScaffoldService {
                         }
                     }
                 }
-
-                return $query;
-            });
-        else
-            $table->filter(function($query) use($params, $table) {
-                $eloquent         = $table->getDriver()->getSource()->getModel();
-                $availableFilters = $eloquent->skyFilter();
-
-                foreach ($availableFilters as $key => $options)
-                    if( isset($params[$key]) && ( !empty($params[$key]) ) )
-                        $query = $eloquent->search(
-                            $params[$key]
-                        );
 
                 return $query;
             });
@@ -452,7 +447,7 @@ DOC;
     protected function isEnabledSmartSearch() {
         $isEnabled = false;
 
-        if( isset(config('scaffold')['smart_search']) && config('scaffold')['smart_search'] == true )
+        if( isset(config('scaffold')['smart_search']) && config('scaffold')['smart_search'] === true )
             $isEnabled = true;
 
         return $isEnabled;
