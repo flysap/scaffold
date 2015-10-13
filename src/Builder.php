@@ -4,6 +4,7 @@ namespace Flysap\Scaffold;
 
 use Cartalyst\Tags\TaggableInterface;
 use DataExporter\DriverAssets\Eloquent\Exportable;
+use Eloquent\Commentable\Commentable;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
 use Eloquent\Translatable\Translatable;
@@ -239,6 +240,20 @@ abstract class Builder {
             ]);
 
             $elements[] = $like;
+        }
+
+        /**
+         * If source can be commented
+         */
+        if( $source instanceof Commentable ) {
+            $comments = count($source->comments);
+
+            $comment = FormBuilder\element_custom([
+                'group' => 'comments',
+                'value' => '<p>Comments '.$comments
+            ]);
+
+            $elements[] = $comment;
         }
 
         return $elements;
