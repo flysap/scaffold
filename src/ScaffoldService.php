@@ -6,7 +6,6 @@ use Cartalyst\Tags\TaggableInterface;
 use Eloquent\ImageAble\ImageAble;
 use Eloquent\Meta\MetaAble;
 use Eloquent\Sortable\Sortable;
-use Flysap\Support\Traits\ElementPermissions;
 use Parfumix\TableManager;
 use Flysap\Scaffold\Builders\Eloquent;
 use Flysap\Support;
@@ -22,8 +21,6 @@ use Parfumix\FormBuilder;
  * @package Flysap\Scaffold
  */
 class ScaffoldService {
-
-    use ElementPermissions;
 
     /**
      * Lists model .
@@ -233,76 +230,24 @@ DOC;
             #if( ! $form->isValid($params) )
                 #throw new ScaffoldException(_('Validation failed'));
 
+            /** Sync meta tags . */
             if( $eloquent instanceof MetaAble )
                 $eloquent->syncMeta(isset($params['meta']) ? $params['meta'] : []);
 
-            if( $eloquent instanceof MetaSeoable ) {
+            /** Update seo tags . */
+            if( $eloquent instanceof MetaSeoable )
                 if( isset($params['seo']) )
                     $eloquent->storeSeo($params['seo']);
-            }
 
-            /**
-             * By default we will upload image through some of filters .
-             */
-            if( $eloquent instanceof ImageAble ) {
-                if( isset($params['images']) ) {
-                    $behaviors = [];
+            /** Upload images */
+            if( $eloquent instanceof ImageAble )
+                if( isset($params['images']) )
+                    $eloquent->upload($params['images']);
 
-                    /**
-                     * When image is uploaded we have for the first to check if the user has custom configurations for uploading images.
-                     *  if there persist some image filters we have walk through that filters.
-                     *   additionally we can set custom store path for images or event set an placeholder for image name .
-                     */
-
-                    if( isset($eloquent['behaviors']) )
-                        $behaviors = $eloquent['behaviors'];
-
-                    if( in_array('behaviors', get_class_methods(get_class($eloquent))) )
-                        $behaviors = $eloquent->behaviors();
-
-                    /** @var Check for filters . $filters */
-                    $filters = [];
-                    if( isset($behaviors['filters']) )
-                        $filters = $behaviors['filters'];
-
-
-                    /** @var Check for path . $path */
-                    $path = null;
-                    if( isset($behaviors['path']) )
-                        $path = public_path($behaviors['path']);
-
-
-                    /** @var Check for closure . $closure */
-                    $closure = null;
-                    if( isset($behaviors['closure']) && ( $behaviors['closure'] instanceof \Closure ) )
-                        $closure = $behaviors['closure'];
-
-
-                    /** @var Check for custom placeholder . $placeholder */
-                    $placeholder = null;
-                    if( isset($behaviors['placeholder']) ) {
-                        $placeholder = $behaviors['placeholder'];
-
-                        $availablePlaceholders = array_merge(
-                            $eloquent->getAttributes(),
-                            ['date' => date('Y.m.d')],
-                            isset($behaviors['available']) ? $behaviors['available'] : []
-                        );
-
-                        foreach ($availablePlaceholders as $key => $value)
-                            $placeholder = str_replace('%'.$key.'%', $value, $placeholder);
-                    }
-
-                    /** Check for permissions if current user can upload images  */
-                    if( $this->isAllowed(isset($behaviors['roles']) ? $behaviors['roles'] : [], isset($behaviors['permissions']) ? $behaviors['permissions'] : []) )
-                        $eloquent->upload($params['images'], $path, $filters, $placeholder, $closure);
-                }
-            }
-
-            if( $eloquent instanceof TaggableInterface ) {
+            /** Set tags . */
+            if( $eloquent instanceof TaggableInterface )
                 if( isset($params['tags']) )
                     $eloquent->setTags($params['tags']);
-            }
 
             $eloquent->fill($params)
                 ->refresh($params)
