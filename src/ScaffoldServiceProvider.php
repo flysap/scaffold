@@ -30,7 +30,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
      * @return void
      */
     public function register() {
-        $this->app->bind('scaffold', ScaffoldService::class);
+        $this->app->bind(ScaffoldInterface::class, ScaffoldService::class);
 
         $this->app->singleton('table-info', TableInfo::class);
 

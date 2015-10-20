@@ -16,11 +16,7 @@ use Input;
 use DataExporter;
 use Parfumix\FormBuilder;
 
-/**
- * Class ScaffoldService
- * @package Flysap\Scaffold
- */
-class ScaffoldService {
+class ScaffoldService implements ScaffoldInterface {
 
     /**
      * Lists model .
