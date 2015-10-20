@@ -1,6 +1,5 @@
 <?php
 
-
 use Flysap\Scaffold\ScaffoldInterface;
 use Illuminate\Http\Request;
 
@@ -11,27 +10,52 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
      *
      */
     Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}/', ['as' => 'custom', function($id, $file, Request $request) {
+
+        $eloquent = app('model-resolver')
+            ->resolve($file, $id);
+
         return app(ScaffoldInterface::class)
-            ->custom($file, $id, $request);
+            ->custom($eloquent, $request);
+
     }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::match(['post', 'get'],'lists/{eloquent_path}', ['as' => 'main', function($file) {
+
+        $eloquent = app('model-resolver')
+            ->resolve($file);
+
         return app(ScaffoldInterface::class)
-            ->lists($file);
+            ->lists($eloquent);
+
     }])->where('eloquent_path', "^([a-z_\\/]+)");
 
     Route::match(['post', 'get'], 'create/{eloquent_path}', ['as' => 'create', function($file) {
+
+        $eloquent = app('model-resolver')
+            ->resolve($file);
+
         return app(ScaffoldInterface::class)
-            ->create($file);
+            ->create($eloquent);
+
     }])->where('eloquent_path', "([a-z_\\/]+)");
 
     Route::match(['post', 'get'], 'edit/{id}/{eloquent_path}', ['as' => 'edit', function($id, $file) {
+
+        $eloquent = app('model-resolver')
+            ->resolve($file, $id);
+
         return app(ScaffoldInterface::class)
-            ->update($file, $id);
+            ->update($eloquent);
+
     }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::get('delete/{id}/{eloquent_path}', ['as' => 'delete', function($id, $file) {
+
+        $eloquent = app('model-resolver')
+            ->resolve($file, $id);
+
         return app(ScaffoldInterface::class)
-            ->delete($file, $id);
+            ->delete($eloquent);
+
     }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 });

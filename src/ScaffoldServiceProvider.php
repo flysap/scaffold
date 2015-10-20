@@ -34,6 +34,8 @@ class ScaffoldServiceProvider extends Serviceprovider {
 
         $this->app->singleton('table-info', TableInfo::class);
 
+        $this->app->singleton('model-resolver', Resolver::class);
+
         $this->registerPackageServices();
     }
 
