@@ -4,7 +4,7 @@ namespace Flysap\Scaffold;
 
 use Flysap\Support;
 
-class Resolver {
+class Finder {
 
 
     public function resolve($path, $id = null) {
