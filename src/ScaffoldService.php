@@ -21,12 +21,11 @@ class ScaffoldService implements ScaffoldInterface {
     /**
      * Lists model .
      *
-     * @param $model
+     * @param $eloquent
+     * @param $path
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
      */
-    public function lists($model) {
-        $eloquent = $this->getModel($model);
-
+    public function lists($eloquent, $path) {
         $params = Input::all();
 
         $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover', 'sortable' => ($eloquent instanceof Sortable)]);
@@ -146,11 +145,11 @@ class ScaffoldService implements ScaffoldInterface {
             }
         }
 
-        $table->addColumn(['closure' => function($value, $attributes) use($model) {
+        $table->addColumn(['closure' => function($value, $attributes) use($path) {
             $elements = $attributes['elements'];
 
-            $edit_route   = route('scaffold::edit', ['eloquent_path' => $model, 'id' => $elements['id']]);
-            $delete_route = route('scaffold::delete', ['eloquent_path' => $model, 'id' => $elements['id']]);
+            $edit_route   = route('scaffold::edit', ['eloquent_path' => $path, 'id' => $elements['id']]);
+            $delete_route = route('scaffold::delete', ['eloquent_path' => $path, 'id' => $elements['id']]);
 
             return <<<DOC
 <a href="$edit_route">Edit</a><br />
@@ -159,26 +158,25 @@ DOC;
 ;
         }], 'action');
 
-        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'model'));
+        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'path'));
     }
 
     /**
      * Create new model .
      *
-     * @param $model
+     * @param $eloquent
+     * @param $path
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
-    public function create($model) {
-        $eloquent = $this->getModel($model);
-
+    public function create($eloquent, $path) {
         if($_POST) {
             #@todo temp can be problem if there is enabled validator .
             $eloquent = $eloquent->create($_POST);
 
-            $this->update($model, $eloquent->id);
+            $this->update($eloquent, $path);
 
             return redirect(
-                route('scaffold::edit', ['id' => $eloquent->id, 'eloquent_path' => $model])
+                route('scaffold::edit', ['id' => $eloquent->id, 'eloquent_path' => $path])
             );
         }
 
@@ -193,13 +191,11 @@ DOC;
     /**
      * Update model .
      *
-     * @param $model
-     * @param $id
+     * @param $eloquent
+     * @param $path
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
      */
-    public function update($model, $id) {
-        $eloquent = $this->getModel($model, $id);
-
+    public function update($eloquent, $path) {
         $params = Input::all();
 
         if( isset($params['export']) ) {
@@ -219,7 +215,7 @@ DOC;
             );
         }
 
-        $form = (new Eloquent($eloquent, ['model' => $model, 'id' => $id]))
+        $form = (new Eloquent($eloquent, ['model' => $path, 'id' => $eloquent->id]))
             ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '']);
 
         if( $_POST ) {
@@ -259,13 +255,10 @@ DOC;
     /**
      * Delete model
      *
-     * @param $model
-     * @param $id
+     * @param $eloquent
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete($model, $id) {
-        $eloquent = $this->getModel($model, $id);
-
+    public function delete($eloquent) {
         $eloquent->delete();
 
         return redirect()
@@ -275,14 +268,11 @@ DOC;
     /**
      * Custom requests .
      *
-     * @param $model
-     * @param $id
+     * @param $eloquent
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function custom($model, $id, Request $request) {
-        $eloquent = $this->getModel($model, $id);
-
+    public function custom($eloquent, Request $request) {
         $params = $request->all();
 
         /** If eloquent implements sortable than sort . */

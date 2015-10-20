@@ -1,7 +1,6 @@
 <?php
 
 use Flysap\Scaffold\ScaffoldInterface;
-use Illuminate\Http\Request;
 
 Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' => 'role:admin'], function() {
 
@@ -9,49 +8,49 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
      * This is an custom url where you can send custom request for your eloquent models.
      *
      */
-    Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}/', ['as' => 'custom', function($id, $file, Request $request) {
+    Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}', ['as' => 'custom', function($id, $path) {
 
-        $eloquent = app('model-resolver')
-            ->resolve($file, $id);
+        $eloquent = app('model-finder')
+            ->resolve($path, $id);
 
         return app(ScaffoldInterface::class)
-            ->custom($eloquent, $request);
+            ->custom($eloquent);
 
     }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 
-    Route::match(['post', 'get'],'lists/{eloquent_path}', ['as' => 'main', function($file) {
+    Route::match(['post', 'get'],'lists/{eloquent_path}', ['as' => 'main', function($path) {
 
-        $eloquent = app('model-resolver')
-            ->resolve($file);
+        $eloquent = app('model-finder')
+            ->resolve($path);
 
         return app(ScaffoldInterface::class)
-            ->lists($eloquent);
+            ->lists($eloquent, $path);
 
     }])->where('eloquent_path', "^([a-z_\\/]+)");
 
-    Route::match(['post', 'get'], 'create/{eloquent_path}', ['as' => 'create', function($file) {
+    Route::match(['post', 'get'], 'create/{eloquent_path}', ['as' => 'create', function($path) {
 
-        $eloquent = app('model-resolver')
-            ->resolve($file);
+        $eloquent = app('model-finder')
+            ->resolve($path);
 
         return app(ScaffoldInterface::class)
-            ->create($eloquent);
+            ->create($eloquent, $path);
 
     }])->where('eloquent_path', "([a-z_\\/]+)");
 
-    Route::match(['post', 'get'], 'edit/{id}/{eloquent_path}', ['as' => 'edit', function($id, $file) {
+    Route::match(['post', 'get'], 'edit/{id}/{eloquent_path}', ['as' => 'edit', function($id, $path) {
 
-        $eloquent = app('model-resolver')
-            ->resolve($file, $id);
+        $eloquent = app('model-finder')
+            ->resolve($path, $id);
 
         return app(ScaffoldInterface::class)
-            ->update($eloquent);
+            ->update($eloquent, $path);
 
     }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::get('delete/{id}/{eloquent_path}', ['as' => 'delete', function($id, $file) {
 
-        $eloquent = app('model-resolver')
+        $eloquent = app('model-finder')
             ->resolve($file, $id);
 
         return app(ScaffoldInterface::class)

@@ -33,7 +33,7 @@
             </div><!-- /.col -->
             <div class="col-xs-3">
                 <div class="box">
-                    <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}">
+                    <a href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
                         {{_('New')}}
                     </a>
                 </div>
