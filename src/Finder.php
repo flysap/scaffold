@@ -80,11 +80,11 @@ class Finder {
         if( class_exists($suffix) && ! $resource )
             $resource = $suffix::findOrNew($id);
 
-        if( ! $resource instanceof ScaffoldAble )
-            throw new ScaffoldException('Model have to implement ScaffoldAble');
-
         if(! $resource)
             throw new ScaffoldException('Invalid class');
+
+        if( ! $resource instanceof ScaffoldAble )
+            throw new ScaffoldException('Model have to implement ScaffoldAble');
 
         return $resource;
     }
