@@ -245,6 +245,7 @@ DOC;
                 if( isset($params['tags']) )
                     $eloquent->setTags($params['tags']);
 
+            #@todo on update i have to check if some fields have permissions to be rewrited .. Form->getFiltered _> ..
             $eloquent->fill($params)
                 ->refresh($params)
                 ->save();
