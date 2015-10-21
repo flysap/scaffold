@@ -18,9 +18,9 @@
 
             @if($widgets)
                 <div class="col-xs-12">
-                        <div class="box-body table-responsive">
-                            {!! Widget::render($widgets) !!}
-                        </div><!-- /.box-body -->
+                    <div class="box-body table-responsive">
+                        {!! Widget::render($widgets) !!}
+                    </div><!-- /.box-body -->
                 </div><!-- /.col -->
             @endif
 
@@ -28,8 +28,8 @@
                 <div class="box">
                     {!! Parfumix\TableManager\render_filter_form($table) !!}
                 </div>
-                <a class="btn btn-lg btn-flat btn-primary" href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
-                    <i class="fa fa-plus-circle"></i>{{_('New')}}
+                <a class="btn btn-lg btn-flat btn-primary mb-10" href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
+                    <i class="fa fa-plus-circle"></i> {{_('New')}}
                 </a>
                 <div class="box">
                     <div class="box-header">

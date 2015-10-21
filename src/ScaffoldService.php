@@ -186,7 +186,8 @@ DOC;
 
         $form = (new Eloquent($eloquent))
             ->build([
-                'method' => FormBuilder\Form::METHOD_POST
+                'method' => FormBuilder\Form::METHOD_POST,
+                'class' => 'form-inline'
             ]);
 
         return view('scaffold::scaffold.edit', compact('form'));
@@ -220,7 +221,7 @@ DOC;
         }
 
         $form = (new Eloquent($eloquent, ['model' => $path, 'id' => $eloquent->id]))
-            ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '']);
+            ->build(['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => '', 'class' => 'form-inline']);
 
         if( $_POST ) {
             #if( ! $form->isValid($params) )

@@ -1,8 +1,3 @@
-<style>
-    #sortable { list-style-type: none; margin: 0; padding: 0; width: 800px; }
-    #sortable li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 240px; height: 110px; font-size: 9px; text-align: left; }
-    #sortable li img {  width: 240px; height: 110px;}
-</style>
 <script>
     $(function() {
         $("#sortable").sortable({
@@ -26,7 +21,7 @@
                 id: image.data('id')
             }
         }}, function(response) {
-
+\
         })
     }
 

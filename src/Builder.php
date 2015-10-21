@@ -108,7 +108,8 @@ abstract class Builder {
                     'name'  => $exporter,
                     'group' => 'export',
                     'title' => 'Download in ' .ucfirst($exporter),
-                    'href'  => '?export='. strtolower($exporter)
+                    'href'  => '?export='. strtolower($exporter),
+                    'class' => 'btn btn-primary btn-lg ico-' .ucfirst($exporter),
                 ]);
             }
         }
@@ -118,6 +119,18 @@ abstract class Builder {
          *
          */
         if( $source instanceof ImageAble ) {
+
+            $afterScript = view('scaffold::scaffold.image', [
+                'route' => isset($this->params['model']) ? route('scaffold::custom', ['model' => $this->params['model'], 'id' => $this->params['id']]) : ''
+            ]);
+
+            $elements[] = FormBuilder\element_file('', [
+                'before' => '<button type="button" class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
+                'after'  => '</button>' . $afterScript,
+                'label' => 'Upload images',
+                'name'  => 'images[]',
+                'group' => 'images'
+            ]);
             $images = $source->images->sortBy('position');
 
             $count = 0;
@@ -125,14 +138,14 @@ abstract class Builder {
                 $count++;
 
                 $after = '';
-                $after .= '<br /><a href="#" onclick="deleteImage($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Delete</a></br>';
+                $after .= '<a href="#" class="delete-btn" onclick="deleteImage($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))"></a>';
 
                 if( ! $image->isMain() )
-                    $after .= '<a href="#" onclick="setAsMain($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Set as main</a><br /></li>';
+                    $after .= '<a href="#" class="btn btn-info btn-flat" onclick="setAsMain($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Set as main</a></li>';
 
                 $before = '<li class="ui-state-default">';
                 if( $count == 1 )
-                    $before = '<ul id="sortable"><li class="ui-state-default">';
+                    $before = '<ul id="sortable" class="sortable-list"><li class="ui-state-default">';
 
                 if( $count == count($images) )
                     $after .= '</ul>';
@@ -149,17 +162,7 @@ abstract class Builder {
                 ]);
             }
 
-            $afterScript = view('scaffold::scaffold.image', [
-                'route' => isset($this->params['model']) ? route('scaffold::custom', ['model' => $this->params['model'], 'id' => $this->params['id']]) : ''
-            ]);
 
-            $elements[] = FormBuilder\element_file('', [
-                'before' => '<div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
-                'after'  => '</div>' . $afterScript,
-                'label' => 'Upload images',
-                'name'  => 'images[]',
-                'group' => 'images'
-            ]);
         }
 
         /**
@@ -188,7 +191,7 @@ abstract class Builder {
 
             foreach ($meta as $value)
                 $elements[]  = FormBuilder\get_element('text', [
-                    'before' => '<a href="#" onclick="$(this).closest(\'div\').remove(); return false;">'._('Remove').'</a>',
+                    'after' => '<a class="btn btn-danger btn-flat btn-remove" href="#" onclick="$(this).closest(\'div\').remove(); return false;"><i class="fa fa-trash"></i></a>',
                     'name'   => 'meta['.$value->key.']',
                     'group'  => 'meta',
                     'value'  => $value->value,
