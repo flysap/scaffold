@@ -33,7 +33,7 @@ class ScaffoldService {
 
         $params = Input::all();
 
-        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-hover', 'sortable' => ($eloquent instanceof Sortable)]);
+        $table = TableManager\table($eloquent, 'eloquent', ['class' => 'table table-striped table-hover', 'sortable' => ($eloquent instanceof Sortable)]);
 
         $scopes = (new Scopes)
             ->addScopes(
@@ -157,11 +157,11 @@ class ScaffoldService {
             $delete_route = route('scaffold::delete', ['eloquent_path' => $model, 'id' => $elements['id']]);
 
             return <<<DOC
-<a href="$edit_route">Edit</a><br />
-<a href="$delete_route">Delete</a><br />
+<a class="btn btn-default btn-flat" href="$edit_route"><i class="fa fa-edit"></i></a>
+<a class="btn btn-danger btn-flat" href="$delete_route"><i class="fa fa-trash"></i></a>
 DOC;
 ;
-        }], 'action');
+        }], 'Action');
 
         return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'model'));
     }

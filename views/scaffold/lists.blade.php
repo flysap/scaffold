@@ -16,16 +16,14 @@
     <section class="content">
         <div class="row">
             <div class="col-xs-12">
-                <div class="box">
-                    <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}" class="btn btn-primary btn-lg">
-                        {{_('New')}}
-                    </a>
-                </div>
-                <div class="col-xs-3">
-                    <div class="box">
+                <div class="box opacity-box">
                     {!! Parfumix\TableManager\render_filter_form($table) !!}
-                    </div>
-                </div><!-- /.col -->
+                    <div class="clearfix"></div>
+                </div>
+                <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}" class="btn btn-primary  mb-10 btn-flat pull-right">
+                    <i class="fa fa-plus-circle"></i> {{_('New')}}
+                </a>
+                <div class="clearfix"></div>
                 <div class="box">
                     <div class="box-header">
                         <h3 class="box-title">Responsive Hover Table</h3>
@@ -36,7 +34,7 @@
                     <div class="box-body table-responsive no-padding">
                         {!! $table->render() !!}
                         {!! Parfumix\TableManager\render_pagination($table, null, ['scope' => request('scope')]) !!}
-                        {{_('Download')}} : {!! $exporters->render() !!}
+                        {{_('Download ')}}<i class="fa fa-download"></i> : {!! $exporters->render() !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
 
