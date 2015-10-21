@@ -3,22 +3,30 @@
 @section('content')
     <section class="content-header">
         <h1>
-            Page Header
-            <small>Optional description</small>
+            {{isset($title) ? $title : ''}}
+            <small>{{isset($description) ? $description : ''}}</small>
         </h1>
-        <ol class="breadcrumb">
+        {{--<ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
             <li class="active">Here</li>
-        </ol>
+        </ol>--}}
     </section>
 
     <!-- Main content -->
     <section class="content">
         <div class="row">
+
+            @if($widgets)
+                <div class="col-xs-12">
+                        <div class="box-body table-responsive">
+                            {!! Widget::render($widgets) !!}
+                        </div><!-- /.box-body -->
+                </div><!-- /.col -->
+            @endif
+
             <div class="col-xs-9">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">Responsive Hover Table</h3>
                         <div class="box-tools">
                             {!! $scopes->render(null, 'pagination pagination-sm no-margin pull-left') !!}
                         </div>
@@ -31,6 +39,7 @@
                 </div><!-- /.box -->
 
             </div><!-- /.col -->
+
             <div class="col-xs-3">
                 <div class="box">
                     <a href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">

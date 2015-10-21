@@ -158,7 +158,11 @@ DOC;
 ;
         }], 'action');
 
-        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'path'));
+        $title = str_plural(ucfirst($eloquent->getTable()));
+
+        $widgets = in_array('widgets', get_class_methods(get_class($eloquent))) ? $eloquent->widgets() : [];
+
+        return view('scaffold::scaffold.lists', compact('table', 'scopes', 'exporters', 'path', 'title', 'widgets'));
     }
 
     /**
