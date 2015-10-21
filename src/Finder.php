@@ -66,8 +66,10 @@ class Finder {
 
         $resource = null;
 
+        $suffix = str_replace('/', '\\', $suffix);
+
         array_walk($namespaces, function($namespace) use($suffix, & $resource, $id) {
-            $class = $namespace .'\\'. str_replace('/', '\\', $suffix);
+            $class = $namespace .'\\'. $suffix;
 
             if( class_exists($class) ) {
                 $resource = $class::findOrNew($id);
