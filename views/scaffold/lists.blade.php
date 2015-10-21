@@ -15,7 +15,17 @@
     <!-- Main content -->
     <section class="content">
         <div class="row">
-            <div class="col-xs-9">
+            <div class="col-xs-12">
+                <div class="box">
+                    <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}" class="btn btn-primary btn-lg">
+                        {{_('New')}}
+                    </a>
+                </div>
+                <div class="col-xs-3">
+                    <div class="box">
+                    {!! Parfumix\TableManager\render_filter_form($table) !!}
+                    </div>
+                </div><!-- /.col -->
                 <div class="box">
                     <div class="box-header">
                         <h3 class="box-title">Responsive Hover Table</h3>
@@ -30,16 +40,6 @@
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
 
-            </div><!-- /.col -->
-            <div class="col-xs-3">
-                <div class="box">
-                    <a href="{{ route('scaffold::create', ['eloquent_path' => $model]) }}">
-                        {{_('New')}}
-                    </a>
-                </div>
-                <div class="box">
-                {!! Parfumix\TableManager\render_filter_form($table) !!}
-                </div>
             </div><!-- /.col -->
         </div><!-- /.row -->
     </section><!-- /.content -->
