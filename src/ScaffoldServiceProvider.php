@@ -17,6 +17,7 @@ class ScaffoldServiceProvider extends Serviceprovider {
             ->loadViews()
             ->loadConfiguration();
 
+        /** Publish default configurations . */
         $this->publishes([
             __DIR__.'/../configuration' => config_path('yaml/scaffold'),
         ]);

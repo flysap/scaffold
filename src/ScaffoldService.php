@@ -186,7 +186,7 @@ DOC;
 
         $form = (new Eloquent($eloquent))
             ->build([
-                'method' => FormBuilder\Form::METHOD_POST
+                'method' => FormBuilder\Form::METHOD_POST,
             ]);
 
         return view('scaffold::scaffold.edit', compact('form'));
