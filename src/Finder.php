@@ -2,46 +2,85 @@
 
 namespace Flysap\Scaffold;
 
-use Flysap\Support;
+use Flysap\Scaffold\Exceptions\ScaffoldException;
 
 class Finder {
 
+    /**
+     * @var array
+     */
+    protected $namespaces = array();
 
-    public function resolve($path, $id = null) {
-        return $this->getModel($path, $id);
+    /**
+     * @param array $namespaces
+     */
+    public function __construct(array $namespaces = array()) {
+        $this->addNamespaces($namespaces);
     }
 
     /**
-     * Get file instance ..
+     * Add path .
      *
-     * @param $file
-     * @param null $identificator
-     * @return mixed
+     * @param $namespace
+     * @return $this
+     * @throws ScaffoldException
      */
-    private function getModel($file, $identificator = null) {
-        $spaces = config('scaffold.model_namespaces');
+    public function addNamespace($namespace) {
+        $this->namespaces[] = $namespace;
 
-        list($vendor, $user, $model) = explode('/', $file);
+        return $this;
+    }
 
-        foreach ($spaces as $space) {
-            $full = $space . DIRECTORY_SEPARATOR . $vendor . DIRECTORY_SEPARATOR . $user . DIRECTORY_SEPARATOR . ucfirst($model) . '.php';
+    /**
+     * Add namespaces .
+     *
+     * @param array $namespaces
+     * @return $this
+     */
+    public function addNamespaces(array $namespaces = array()) {
+        array_walk($namespaces, function($namespace) {
+           $this->addNamespace($namespace);
+        });
 
-            if( ! Support\is_path_exists(
-                app_path('../' . $full)
-            ) )
-                continue;
+        return $this;
+    }
 
-            if( ! Support\has_extension($full, 'php'))
-                continue;
+    /**
+     * Get namespaces .
+     *
+     * @return array
+     */
+    public function getNamespaces() {
+        return $this->namespaces;
+    }
 
-            require_once(app_path('../' . $full));
+    /**
+     * Resolve path .
+     *
+     * @param $suffix
+     * @return mixed
+     * @throws ScaffoldException
+     */
+    public function resolve($suffix, $id = null) {
+        $namespaces = $this->getNamespaces();
 
-            #@todo check psr4 ..
-            $class = 'Modules\\' . $vendor . '\\' . $user . '\\' . ucfirst($model);
+        $resource = null;
 
-            $model = $class::findOrNew($identificator);
-        }
+        array_walk($namespaces, function($namespace) use($suffix, & $resource, $id) {
+            $class = $namespace .'\\'. str_replace('/', '\\', $suffix);
 
-        return $model;
+            if( class_exists($class) ) {
+                $resource = $class::findOrNew($id);
+                return false;
+            }
+        });
+
+        if( class_exists($suffix) && ! $resource )
+            $resource = $suffix::findOrNew($id);
+
+        if(! $resource)
+            throw new ScaffoldException('Invalid class');
+
+        return $resource;
     }
 }
