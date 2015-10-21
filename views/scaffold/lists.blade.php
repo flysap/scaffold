@@ -16,7 +16,7 @@
     <section class="content">
         <div class="row">
             <div class="col-xs-12">
-                <div class="box opacity-box">
+                <div class="box">
                     {!! Parfumix\TableManager\render_filter_form($table) !!}
                     <div class="clearfix"></div>
                 </div>
@@ -39,19 +39,6 @@
                 </div><!-- /.box -->
 
             </div><!-- /.col -->
-<<<<<<< HEAD
-=======
-            <div class="col-xs-3">
-                <div class="box">
-                    <a href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
-                        {{_('New')}}
-                    </a>
-                </div>
-                <div class="box">
-                {!! Parfumix\TableManager\render_filter_form($table) !!}
-                </div>
-            </div><!-- /.col -->
->>>>>>> a2e296016a62ec7eef552594e285b1e3ce34dd0c
         </div><!-- /.row -->
     </section><!-- /.content -->
 @endsection

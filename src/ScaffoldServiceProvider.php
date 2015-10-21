@@ -34,7 +34,11 @@ class ScaffoldServiceProvider extends Serviceprovider {
 
         $this->app->singleton('table-info', TableInfo::class);
 
-        $this->app->singleton('model-finder', Finder::class);
+        $this->app->singleton('model-finder', function() {
+            return new Finder(
+                config('scaffold.namespaces')
+            );
+        });
 
         $this->registerPackageServices();
     }

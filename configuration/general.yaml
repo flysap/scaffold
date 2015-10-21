@@ -2,9 +2,8 @@
 smart_search: true
 
 # here will be declared an list of namespaces
-model_namespaces:
-  - storage/modules
-  - modules
+namespaces:
+  - Modules
 
 # which exporters show .
 exporters:
