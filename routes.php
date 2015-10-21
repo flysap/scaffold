@@ -16,7 +16,7 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
         return app(ScaffoldInterface::class)
             ->custom($eloquent);
 
-    }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
+    }])->where(['eloquent_path' => "^([a-zA-Z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::match(['post', 'get'],'lists/{eloquent_path}', ['as' => 'main', function($path) {
 
@@ -26,7 +26,7 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
         return app(ScaffoldInterface::class)
             ->lists($eloquent, $path);
 
-    }])->where('eloquent_path', "^([a-z_\\/]+)");
+    }])->where('eloquent_path', "^([a-z_A-Z\\/]+)");
 
     Route::match(['post', 'get'], 'create/{eloquent_path}', ['as' => 'create', function($path) {
 
@@ -36,7 +36,7 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
         return app(ScaffoldInterface::class)
             ->create($eloquent, $path);
 
-    }])->where('eloquent_path', "([a-z_\\/]+)");
+    }])->where('eloquent_path', "([a-zA-Z_\\/]+)");
 
     Route::match(['post', 'get'], 'edit/{id}/{eloquent_path}', ['as' => 'edit', function($id, $path) {
 
@@ -46,7 +46,7 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
         return app(ScaffoldInterface::class)
             ->update($eloquent, $path);
 
-    }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
+    }])->where(['eloquent_path' => "^([a-zA-Z_\\/]+)", 'id' => "(\\d+)"]);
 
     Route::get('delete/{id}/{eloquent_path}', ['as' => 'delete', function($id, $file) {
 
@@ -56,5 +56,5 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
         return app(ScaffoldInterface::class)
             ->delete($eloquent);
 
-    }])->where(['eloquent_path' => "^([a-z_\\/]+)", 'id' => "(\\d+)"]);
+    }])->where(['eloquent_path' => "^([a-zA-Z_\\/]+)", 'id' => "(\\d+)"]);
 });
