@@ -24,7 +24,13 @@
                 </div><!-- /.col -->
             @endif
 
-            <div class="col-xs-9">
+            <div class="col-xs-12">
+                <div class="box">
+                    {!! Parfumix\TableManager\render_filter_form($table) !!}
+                </div>
+                <a class="btn btn-lg btn-flat btn-primary" href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
+                    <i class="fa fa-plus-circle"></i>{{_('New')}}
+                </a>
                 <div class="box">
                     <div class="box-header">
                         <div class="box-tools">
@@ -38,17 +44,7 @@
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
 
-            </div><!-- /.col -->
-
-            <div class="col-xs-3">
-                <div class="box">
-                    <a href="{{ route('scaffold::create', ['eloquent_path' => $path]) }}">
-                        {{_('New')}}
-                    </a>
-                </div>
-                <div class="box">
-                {!! Parfumix\TableManager\render_filter_form($table) !!}
-                </div>
+                
             </div><!-- /.col -->
         </div><!-- /.row -->
     </section><!-- /.content -->
