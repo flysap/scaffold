@@ -53,14 +53,15 @@
                             @foreach($elements as $element)
                                 @include('scaffold::scaffold.partials.element')
                             @endforeach
-
                         </div><!-- /.box-body -->
                     </div><!-- /.box -->
                 @endif
-
             </div><!-- /.col -->
         </div> <!-- /.row -->
-        {!!Parfumix\FormBuilder\render_button(['value' => 'Submit', 'type' => 'submit'])!!}
+
+        {!!Parfumix\FormBuilder\render_submit(['value' => 'Save', 'type' => 'submit', 'class' => 'btn btn-primary btn-flat', 'name' => 'save'])!!}
+        {!!Parfumix\FormBuilder\render_submit(['value' => 'Save & Return', 'type' => 'submit', 'class' => 'btn btn-primary btn-warning btn-flat', 'name' => 'save_return'])!!}
+        {!!Parfumix\FormBuilder\render_submit(['value' => 'Save & New', 'type' => 'submit', 'class' => 'btn btn-primary btn-danger btn-flat', 'name' => 'save_new'])!!}
         {!!Parfumix\FormBuilder\close_form($form)!!}
 
     </section><!-- /.content -->
