@@ -177,11 +177,7 @@ DOC;
             #@todo temp can be problem if there is enabled validator .
             $eloquent = $eloquent->create($_POST);
 
-            $this->update($eloquent, $path);
-
-            return redirect(
-                route('scaffold::edit', ['id' => $eloquent->id, 'eloquent_path' => $path])
-            );
+            return $this->update($eloquent, $path);
         }
 
         $form = (new Eloquent($eloquent))
@@ -251,8 +247,18 @@ DOC;
                 ->refresh($params)
                 ->save();
 
-            return redirect()
-                ->back();
+            if( isset($params['save']) )
+                return redirect(
+                    route('scaffold::edit', ['eloquent_path' => $path, 'id' => $eloquent->id])
+                );
+            elseif( isset($params['save_return']) )
+                return redirect(
+                    route('scaffold::main', ['eloquent_path' => $path])
+                );
+            else
+                return redirect(
+                    route('scaffold::create', ['eloquent_path' => $path])
+                );
         }
 
         return view('scaffold::scaffold.edit', compact('form'));
