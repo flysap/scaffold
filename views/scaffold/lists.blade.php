@@ -40,11 +40,16 @@
                     <div class="box-body table-responsive no-padding">
                         {!! $table->render() !!}
                         {!! Parfumix\TableManager\render_pagination($table, null, ['scope' => request('scope')]) !!}
-                        {{_('Download')}} : {!! $exporters->render() !!}
+                        <div class="clearfix">
+
+                        </div>
+
+                        <!-- @todo spark add please space to links -->
+                        {{_('Download')}} <i class="fa fa-download"></i> : {!! $exporters->render() !!}
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
 
-                
+
             </div><!-- /.col -->
         </div><!-- /.row -->
     </section><!-- /.content -->
