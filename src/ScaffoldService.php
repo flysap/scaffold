@@ -248,8 +248,9 @@ DOC;
                 ->save();
 
             if( isset($params['save']) )
-                return redirect()
-                    ->back();
+                return redirect(
+                    route('scaffold::edit', ['eloquent_path' => $path, 'id' => $eloquent->id])
+                );
             elseif( isset($params['save_return']) )
                 return redirect(
                     route('scaffold::main', ['eloquent_path' => $path])
