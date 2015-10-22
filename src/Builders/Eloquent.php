@@ -276,7 +276,7 @@ class Eloquent extends Builder implements BuildAble {
                 $firstField = array_pop($keys);
 
                 $options = [];
-                
+
                 $results = $query->getRelated()
                     ->get();
 
