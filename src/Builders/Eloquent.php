@@ -2,6 +2,7 @@
 
 namespace Flysap\Scaffold\Builders;
 
+use Eloquent\Translatable\Translatable;
 use Flysap\Scaffold\BuildAble;
 use Flysap\Scaffold\Builder;
 use Flysap\Scaffold\ScaffoldAble;
@@ -85,7 +86,6 @@ class Eloquent extends Builder implements BuildAble {
                     $query = $queryClosure($query);
 
             $items = $query->get();
-
 
             /** Get editable fields for related model . */
             if( ! isset($attributes['fields']) ) {
@@ -275,10 +275,26 @@ class Eloquent extends Builder implements BuildAble {
                 $keys = array_keys($fields);
                 $firstField = array_pop($keys);
 
-                $options = $query->getRelated()
-                    ->get()
-                    ->lists($firstField, $query->getRelated()->getKeyName())
-                    ->toArray();
+                $options = [];
+                
+                $results = $query->getRelated()
+                    ->get();
+
+                foreach($results as $source) {
+
+                    $firstValue  = null;
+                    $secondValue = $source->getAttribute($query->getRelated()->getKeyName());
+                    if( isset($fields[$firstField]['translatable']) && $fields[$firstField]['translatable'] === true ) {
+                        if( $source instanceof Translatable ) {
+                            if( $translation = $source->translate( isset($fields[$firstField]['locale']) ? $fields[$firstField]['locale'] : null ) )
+                                $firstValue = $translation->$firstField;
+                        }
+                    } else {
+                        $firstValue = $source->getAttribute($firstField);
+                    }
+
+                    $options[$secondValue] = $firstValue;
+            }
 
                 $select = FormBuilder\element_select(ucfirst($relation), [
                     'options' => [null => '--Select--'] + $options,
