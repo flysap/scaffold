@@ -13,7 +13,7 @@
     </section>
 
     <!-- Main content -->
-    <section class="content">
+    <section class="content edit-block">
 
         {!!Parfumix\FormBuilder\open_form($form)!!}
             <div class="row">
