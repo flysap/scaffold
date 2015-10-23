@@ -12,16 +12,14 @@
             }
         }).disableSelection();
     });
-</script>
 
-<script type="text/javascript">
     function deleteImage(image) {
         $.post('<?=$route?>', {images:{
             delete: {
                 id: image.data('id')
             }
         }}, function(response) {
-\
+
         })
     }
 

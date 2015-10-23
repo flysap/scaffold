@@ -8,13 +8,13 @@ Route::group(['prefix' => 'admin/scaffold', 'as' => 'scaffold::', 'middleware' =
      * This is an custom url where you can send custom request for your eloquent models.
      *
      */
-    Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}', ['as' => 'custom', function($id, $path) {
+    Route::match(['post', 'get'], 'custom/{id}/{eloquent_path}', ['as' => 'custom', function($id, $path, \Illuminate\Http\Request $request) {
 
         $eloquent = app('model-finder')
             ->resolve($path, $id);
 
         return app(ScaffoldInterface::class)
-            ->custom($eloquent);
+            ->custom($eloquent, $request);
 
     }])->where(['eloquent_path' => "^([a-zA-Z_\\/]+)", 'id' => "(\\d+)"]);
 

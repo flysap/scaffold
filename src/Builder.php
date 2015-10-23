@@ -120,17 +120,6 @@ abstract class Builder {
          */
         if( $source instanceof ImageAble ) {
 
-            $afterScript = view('scaffold::scaffold.image', [
-                'route' => isset($this->params['model']) ? route('scaffold::custom', ['model' => $this->params['model'], 'id' => $this->params['id']]) : ''
-            ]);
-
-            $elements[] = FormBuilder\element_file('', [
-                'before' => '<button type="button" class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
-                'after'  => '</button>' . $afterScript,
-                'label' => 'Upload images',
-                'name'  => 'images[]',
-                'group' => 'images'
-            ]);
             $images = $source->images->sortBy('position');
 
             $count = 0;
@@ -162,7 +151,17 @@ abstract class Builder {
                 ]);
             }
 
+            $afterScript = view('scaffold::scaffold.image', [
+                'route' => isset($this->params['model']) ? route('scaffold::custom', ['model' => $this->params['model'], 'id' => $this->params['id']]) : ''
+            ]);
 
+            $elements[] = FormBuilder\element_file('', [
+                'before' => '<button type="button" class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
+                'after'  => '</button>' . $afterScript,
+                'label' => 'Upload images',
+                'name'  => 'images[]',
+                'group' => 'images'
+            ]);
         }
 
         /**
