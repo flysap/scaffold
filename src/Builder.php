@@ -87,7 +87,11 @@ abstract class Builder {
                 $meta = Meta\meta_eloquent($source, $locale);
 
                 foreach ($meta->toArray(true) as $key => $value) {
-                    $elements[]  = FormBuilder\get_element('text', [
+                    $elementType = 'text';
+                    if($key != 'title')
+                        $elementType = 'wysiwyg';
+
+                    $elements[]  = FormBuilder\get_element($elementType, [
                         'name'  => 'seo['.$locale.']['.$key.']',
                         'value' => $value,
                         'group' => 'Seo',
@@ -173,8 +177,15 @@ abstract class Builder {
             foreach($locales as $locale => $attributes) {
                 $translation = $source->translate($locale);
 
-                foreach($source->translatedAttributes() as $attribute) {
-                    $elements[]  = FormBuilder\get_element('text', [
+                foreach($source->translatedAttributes() as $key => $attribute) {
+
+                    $elementAttributes['type'] = 'text';
+                    if( is_array($attribute) ) {
+                        $elementAttributes = $attribute;
+                        $attribute = $key;
+                    }
+
+                    $elements[]  = FormBuilder\get_element($elementAttributes['type'], [
                         'group' => 'translations',
                         'label' => ucfirst($attribute) . ' ' . $locale,
                         'value' => $translation[$attribute],
