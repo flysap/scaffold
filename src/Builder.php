@@ -130,7 +130,7 @@ abstract class Builder {
                 $after .= '<a href="#" class="delete-btn" onclick="deleteImage($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))"></a>';
 
                 if( ! $image->isMain() )
-                    $after .= '<a href="#" class="btn btn-info btn-flat" onclick="setAsMain($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Set as main</a></li>';
+                    $after .= '<a href="#" class="btn btn-flat" onclick="setAsMain($(this).closest(\'div\').find(\'#image-'.$image->id.'\'))">Set as main</a></li>';
 
                 $before = '<li class="ui-state-default">';
                 if( $count == 1 )
@@ -156,7 +156,7 @@ abstract class Builder {
             ]);
 
             $elements[] = FormBuilder\element_file('', [
-                'before' => '<button type="button" class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Attachment',
+                'before' => '<button type="button" class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> Upload',
                 'after'  => '</button>' . $afterScript,
                 'label' => 'Upload images',
                 'name'  => 'images[]',

@@ -94,9 +94,10 @@ class ScaffoldServiceProvider extends Serviceprovider {
 
         $menuManager = app('menu-manager');
 
-        array_walk($namespaces, function($namespace) use($menuManager) {
-            $menuManager->addNamespace($namespace, false);
-        });
+        if($namespaces)
+            array_walk($namespaces, function($namespace) use($menuManager) {
+                $menuManager->addNamespace($namespace, false);
+            });
     }
 
     /**
